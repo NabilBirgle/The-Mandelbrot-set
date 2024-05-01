@@ -1,22 +1,21 @@
 //
 //  ContentView.swift
-//  Mandelbrot
+//  test
 //
-//  Created by Nabil Birgle on 01/05/2024.
+//  Created by Nabil Birgle on 26/04/2024.
 //
 
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
+	var body: some View {
+		VStack {
+			MetalView()
+				.border(Color.black, width: 2)
+			Text("Hello, Metal !")
+		}
+		.padding()
+	}
 }
 
 #Preview {

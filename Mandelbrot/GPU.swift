@@ -1,0 +1,181 @@
+import MetalKit
+
+class GPU {
+	init(){
+	}
+	var device: MTLDevice?
+	func set_device(metalView: MTKView){
+		guard
+			let device = MTLCreateSystemDefaultDevice()
+		else {
+			self.device = nil
+			return
+		}
+		self.device = device
+		metalView.device = device
+	}
+	var library: MTLLibrary?
+	func set_library(){
+		library = device?.makeDefaultLibrary()
+	}
+	var functions: [String: MTLFunction] = [:]
+	func compile(name: String){
+		functions[name] = library?.makeFunction(name: name)
+	}
+	var render_pipeline_state: MTLRenderPipelineState?
+	func set_render_pipeline_state(metalView: MTKView,
+								   vertex_function: String,
+								   fragment_function: String,
+								   n_buffer: Int){
+		let pipelineDescriptor: MTLRenderPipelineDescriptor = MTLRenderPipelineDescriptor()
+		pipelineDescriptor.vertexFunction = functions[vertex_function]
+		pipelineDescriptor.fragmentFunction = functions[fragment_function]
+		pipelineDescriptor.colorAttachments[0].pixelFormat = metalView.colorPixelFormat
+
+		pipelineDescriptor.vertexDescriptor =
+		MTLVertexDescriptor.defaultLayout(n_buffer: n_buffer)
+		do {
+			render_pipeline_state =
+			try device?.makeRenderPipelineState(descriptor: pipelineDescriptor)
+		} catch {
+			fatalError(error.localizedDescription)
+		}
+	}
+	var compute_pipeline_state: MTLComputePipelineState?
+	func set_compute_pipeline_state(function_name: String){
+		guard
+			let f: MTLFunction = functions[function_name]
+		else {
+			compute_pipeline_state = nil
+			return
+		}
+		do {
+			compute_pipeline_state = try device?.makeComputePipelineState(function: f)
+		} catch {
+			print(error)
+		}
+	}
+}
+
+class Command_queue {
+	let gpu: GPU
+	init(gpu: GPU) {
+		self.gpu = gpu
+	}
+	var command_queue: MTLCommandQueue?
+	func set_command_queue(){
+		command_queue = gpu.device?.makeCommandQueue()
+	}
+	func make_command_buffer() -> MTLCommandBuffer? {
+		command_queue?.makeCommandBuffer()
+	}
+}
+
+class Command_buffer {
+	let command_queue: Command_queue
+	init(command_queue: Command_queue) {
+		self.command_queue = command_queue
+	}
+	var command_buffer: MTLCommandBuffer?
+	func make_buffer(view: MTKView){
+		guard
+			let drawable = view.currentDrawable
+		else {
+			command_buffer = nil
+			return
+		}
+		command_queue.set_command_queue()
+		command_buffer = command_queue.make_command_buffer()
+		command_buffer?.present(drawable)
+	}
+	func make_render_command_encoder(descriptor: MTLRenderPassDescriptor) -> MTLRenderCommandEncoder? {
+		command_buffer?.makeRenderCommandEncoder(descriptor: descriptor)
+	}
+	func make_compute_command_encoder() -> MTLComputeCommandEncoder? {
+		command_buffer?.makeComputeCommandEncoder()
+	}
+	func commit(){
+		command_buffer?.commit()
+	}
+}
+
+class Render_command_encoder{
+	let command_buffer: Command_buffer
+	init(command_buffer: Command_buffer) {
+		self.command_buffer = command_buffer
+	}
+	var command_encoder: MTLRenderCommandEncoder?
+	func call_vertex_function(view: MTKView, render_pipeline_state: MTLRenderPipelineState?){
+		guard
+			let descriptor: MTLRenderPassDescriptor = view.currentRenderPassDescriptor,
+			let pipeline_state: MTLRenderPipelineState = render_pipeline_state
+		else {
+			command_encoder = nil
+			return
+		}
+		command_encoder = command_buffer.make_render_command_encoder(descriptor: descriptor)
+		command_encoder?.setRenderPipelineState(pipeline_state)
+	}
+	var input: Int = 0
+	func set_input(x: inout Float){
+		command_encoder?.setVertexBytes(&x,
+										length: MemoryLayout<Float>.stride,
+										index: input)
+		input += 1
+	}
+	func set_input(arr: MTLBuffer){
+		command_encoder?.setVertexBuffer(arr, offset: 0, index: input)
+		input += 1
+	}
+	func set_input(window: Window){
+		set_input(arr: window.vertexBuffer)
+		set_input(arr: window.colorBuffer)
+		command_encoder?.drawIndexedPrimitives(
+			type: .triangle,
+			indexCount: window.triangles.count,
+			indexType: .uint32,
+			indexBuffer: window.trianglesBuffer,
+			indexBufferOffset: 0)
+	}
+	func end(){
+		command_encoder?.endEncoding()
+	}
+}
+
+class Compute_command_encoder{
+	let command_buffer: Command_buffer
+	init(command_buffer: Command_buffer) {
+		self.command_buffer = command_buffer
+	}
+	var command_encoder: MTLComputeCommandEncoder?
+	func call_kernel_function(compute_pipeline_state: MTLComputePipelineState?){
+		guard
+			let pipeline_state: MTLComputePipelineState = compute_pipeline_state
+		else {
+			command_encoder = nil
+			return
+		}
+		command_encoder = command_buffer.make_compute_command_encoder()
+		command_encoder?.setComputePipelineState(pipeline_state)
+	}
+	var input: Int = 0
+	func set_input(arr: MTLBuffer){
+		command_encoder?.setBuffer(arr, offset: 0, index: input)
+		input += 1
+	}
+	func set_index_input(thread: Int, compute_pipeline_state: MTLComputePipelineState?){
+		guard
+			let pipeline_state: MTLComputePipelineState = compute_pipeline_state
+		else {
+			command_encoder = nil
+			return
+		}
+		let grid: MTLSize = MTLSize(width: thread, height: 1, depth: 1)
+		let k: Int = pipeline_state.maxTotalThreadsPerThreadgroup
+		let subgrid: MTLSize = MTLSize(width: k, height: 1, depth: 1)
+		command_encoder?.dispatchThreads(grid, threadsPerThreadgroup: subgrid)
+	}
+	func end(){
+		command_encoder?.endEncoding()
+	}
+}
