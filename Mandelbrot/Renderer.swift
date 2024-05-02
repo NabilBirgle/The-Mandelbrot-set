@@ -3,12 +3,11 @@ import MetalKit
 class Renderer: NSObject {
 	let gpu: GPU
 	let command_queue: Command_queue
-	var mandelbrot: Window
+	var mandelbrot: Window?
 	init(metalView: MTKView){
 		self.gpu = GPU()
 		gpu.set_device(metalView: metalView)
 		gpu.set_library()
-
 		let vertex_function = "vertex_main"
 		let fragment_function = "fragment_main"
 		let vertex_n_buffer: Int = 2
@@ -18,11 +17,16 @@ class Renderer: NSObject {
 									  vertex_function: vertex_function,
 									  fragment_function: fragment_function,
 									  n_buffer: vertex_n_buffer)
-
 		gpu.compile(name: update_function)
-
 		self.command_queue = Command_queue(gpu: gpu)
-		self.mandelbrot = Window(device: gpu.device!)
+		guard
+			let device: MTLDevice = gpu.device
+		else {
+			self.mandelbrot = nil
+			super.init()
+			return
+		}
+		self.mandelbrot = Window(device: device)
 		super.init()
 		metalView.clearColor = MTLClearColor(
 			red: 1.0,
@@ -57,7 +61,12 @@ extension Renderer: MTKViewDelegate {
 		command_buffer.commit()
 	}
 	func draw(view: MTKView, command_buffer: Command_buffer){
-		let render_command_encoder: Render_command_encoder 
+		guard
+			let mandelbrot: Window = mandelbrot
+		else {
+			return
+		}
+		let render_command_encoder: Render_command_encoder
 		= Render_command_encoder(command_buffer: command_buffer)
 		render_command_encoder.call_vertex_function(
 			view: view, render_pipeline_state: gpu.render_pipeline_state)
@@ -72,8 +81,13 @@ extension Renderer: MTKViewDelegate {
 		delta_y = 2*sin(timer)
 	}
 	func update_window(command_buffer: Command_buffer){
+		guard
+			let mandelbrot: Window = mandelbrot
+		else {
+			return
+		}
 		let compute_command_encoder: Compute_command_encoder = Compute_command_encoder(command_buffer: command_buffer)
-		gpu.set_compute_pipeline_state(function_name: "update_function")
+		gpu.set_compute_pipeline_state(function_name: update_function)
 		compute_command_encoder.call_kernel_function(compute_pipeline_state: gpu.compute_pipeline_state)
 		compute_command_encoder.set_input(arr: mandelbrot.vertexBuffer)
 		compute_command_encoder.set_input(arr: mandelbrot.z_nBuffer)
