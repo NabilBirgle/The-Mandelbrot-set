@@ -8,13 +8,11 @@ extension MTLVertexDescriptor {
 		vertexDescriptor.attributes[0].offset = 0
 		vertexDescriptor.attributes[0].bufferIndex = n
 		vertexDescriptor.layouts[n].stride = MemoryLayout<simd_float2>.stride
-
 		n += 1
 		vertexDescriptor.attributes[1].format = .float3
 		vertexDescriptor.attributes[1].offset = 0
 		vertexDescriptor.attributes[1].bufferIndex = n
 		vertexDescriptor.layouts[n].stride = MemoryLayout<simd_float3>.stride
-
 		return vertexDescriptor
 	}
 }

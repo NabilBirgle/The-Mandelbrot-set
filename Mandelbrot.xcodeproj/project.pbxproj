@@ -21,7 +21,7 @@
 		7C91B13A2BE28F1900493738 /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91B1322BE28F1900493738 /* Window.swift */; };
 		7C91B13B2BE28F1900493738 /* VertexDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91B1332BE28F1900493738 /* VertexDescriptor.swift */; };
 		7C91B13C2BE28F1900493738 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91B1342BE28F1900493738 /* ContentView.swift */; };
-		7C9B64602BE2A91E00588AFF /* Kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7C9B645F2BE2A91E00588AFF /* Kernel.metal */; };
+		7C9B64602BE2A91E00588AFF /* Mandelbrot.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7C9B645F2BE2A91E00588AFF /* Mandelbrot.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +60,7 @@
 		7C91B1322BE28F1900493738 /* Window.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
 		7C91B1332BE28F1900493738 /* VertexDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VertexDescriptor.swift; sourceTree = "<group>"; };
 		7C91B1342BE28F1900493738 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		7C9B645F2BE2A91E00588AFF /* Kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Kernel.metal; sourceTree = "<group>"; };
+		7C9B645F2BE2A91E00588AFF /* Mandelbrot.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Mandelbrot.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +117,7 @@
 				7C91B1312BE28F1900493738 /* MetalView.swift */,
 				7C91B1302BE28F1900493738 /* Renderer.swift */,
 				7C91B12E2BE28F1800493738 /* Shaders.metal */,
-				7C9B645F2BE2A91E00588AFF /* Kernel.metal */,
+				7C9B645F2BE2A91E00588AFF /* Mandelbrot.metal */,
 				7C91B1332BE28F1900493738 /* VertexDescriptor.swift */,
 				7C91B1322BE28F1900493738 /* Window.swift */,
 				7C91B0EB2BE28EA700493738 /* MandelbrotApp.swift */,
@@ -287,7 +287,7 @@
 				7C91B1392BE28F1900493738 /* MetalView.swift in Sources */,
 				7C91B1352BE28F1900493738 /* Mesh.swift in Sources */,
 				7C91B13B2BE28F1900493738 /* VertexDescriptor.swift in Sources */,
-				7C9B64602BE2A91E00588AFF /* Kernel.metal in Sources */,
+				7C9B64602BE2A91E00588AFF /* Mandelbrot.metal in Sources */,
 				7C91B0EC2BE28EA700493738 /* MandelbrotApp.swift in Sources */,
 				7C91B13C2BE28F1900493738 /* ContentView.swift in Sources */,
 				7C91B1382BE28F1900493738 /* Renderer.swift in Sources */,

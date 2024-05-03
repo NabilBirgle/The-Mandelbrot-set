@@ -13,7 +13,9 @@ struct Window {
 
 	init(device: MTLDevice){
 		let mesh: Mesh = Mesh(n: 512)
-		self.vertices = mesh.vertices.map({ $0 * 4 - 2 })
+		let a: simd_float2 = [-2, -2]
+		let b: simd_float2 = [2, 2]
+		self.vertices = mesh.vertices.map({ $0 * (b-a) + a })
 		self.triangles = mesh.triangles
 		self.colors = [simd_float3].init(repeating: [0, 0, 0], count: vertices.count)
 		self.z_n = [simd_float2].init(repeating: [0, 0], count: vertices.count)

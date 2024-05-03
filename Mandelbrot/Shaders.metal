@@ -2,8 +2,8 @@
 using namespace metal;
 
 struct VertexIn {
-  float4 position [[attribute(0)]];
-  float4 color [[attribute(1)]];
+  float2 position [[attribute(0)]];
+  float3 color [[attribute(1)]];
 };
 
 struct VertexOut {
@@ -13,12 +13,12 @@ struct VertexOut {
 
 vertex
 VertexOut vertex_main(constant float& scale [[buffer(0)]],
-					  constant float& delta_y [[buffer(1)]],
 					  VertexIn v [[stage_in]]){
-	VertexOut out { .position = v.position, .color = v.color };
-	out.position.y += delta_y;
-	out.position.x *= scale;
-	out.position.y *= scale;
+	float4 position = {v.position.x, v.position.y, 0., 1.};
+	float4 color = {v.color.x, v.color.y, v.color.z, 1.};
+	position.x *= scale;
+	position.y *= scale;
+	VertexOut out { .position = position, .color = color };
 	return out;
 }
 
