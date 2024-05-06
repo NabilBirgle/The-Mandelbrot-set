@@ -28,6 +28,10 @@ float3 color_function(float m, float3 c){
 	float blue = m <= 2 ? 0 : c.z * i;
 	return {red, green, blue};
 }
+//
+//float3 cream_color(){
+//	return {1.0, 1.0, 0.8};
+//}
 
 float3 cream_color(){
 	return {1.0, 1.0, 0.8};

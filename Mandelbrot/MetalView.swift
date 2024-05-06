@@ -34,11 +34,139 @@ import SwiftUI
 import MetalKit
 
 struct MetalView: View {
-	@State private var metalView = MTKView()
+	let gpu: GPU
+	let command_queue: Command_queue
+	let vertices_function = "vertices_function"
+	let triangles_function = "triangles_function"
+	let zero_function = "zero_function"
+	let update_function =  "update_function"
+	let vertex_main = "vertex_main"
+	let fragment_main = "fragment_main"
+	let n_vertex_buffer: Int = 3
+	@State private var metalView: MTKView
+	init(){
+		let gpu = GPU()
+		gpu.compile(name: vertices_function)
+		gpu.compile(name: triangles_function)
+		gpu.compile(name: zero_function)
+		gpu.compile(name: update_function)
+		gpu.compile(name: vertex_main)
+		gpu.compile(name: fragment_main)
+		self.gpu = gpu
+		self.command_queue = Command_queue(gpu: gpu)
+		self.metalView = MTKView()
+		metalView.device = gpu.get_device()
+		metalView.clearColor = Cream_color()
+	}
+	@State var window_width: CGFloat = 0
+	@State var window_height: CGFloat = 0
+	@State var center: (Float, Float) = (0, 0)
+	@State var radius: Float = 2
+	@State var window: Window?
 	@State private var renderer: Renderer?
 	var body: some View {
 		MetalViewRepresentable(metalView: $metalView)
-			.onAppear(perform: { renderer = Renderer(metalView: metalView) })
+			.scaledToFit()
+			.onAppear(perform: new_mandelbrot)
+			.getSize(size_function: new_size)
+			.gesture(drag_mandelbrot)
+	}
+	func new_size(size: CGSize) -> Void {
+		window_height = size.height
+		window_width = size.width
+	}
+	func new_mandelbrot() -> Void {
+		window = Window(
+			gpu: gpu,
+			command_queue: command_queue,
+			center: center,
+			radius: radius,
+			vertices_function: vertices_function,
+			triangles_function: triangles_function,
+			zero_function: zero_function
+		)
+		guard let w: Window = window else { return }
+		renderer = Renderer(
+			gpu: gpu,
+			command_queue: command_queue,
+			metalView: metalView,
+			window: w,
+			update_function: update_function,
+			vertex_main: vertex_main,
+			fragment_main: fragment_main,
+			n_vertex_buffer: n_vertex_buffer
+		)
+		metalView.delegate = renderer
+	}
+//	@State private var isDragging = false
+//	@State var delta: (Int, Int) = (0, 0)
+	var drag_mandelbrot: some Gesture {
+		DragGesture()
+			.onChanged(dragging_mandelbrot)
+//			.onChanged { _ in self.isDragging = true }
+			.onEnded { d in shift_mandelbrot(d: d) }
+	}
+	func dragging_mandelbrot(d: DragGesture.Value){
+		let (delta_x, delta_y): (Int, Int) = (
+			Int(d.translation.width*100/window_width),
+			-Int(d.translation.height*100/window_height)
+		)
+		renderer?.set_delta_v(
+			delta_v: [Float(delta_x)*radius/50, Float(delta_y)*radius/50]
+		)
+	}
+	func shift_mandelbrot(d: DragGesture.Value){
+		let (delta_x, delta_y): (Int, Int) = (
+			Int(d.translation.width*100/window_width),
+			-Int(d.translation.height*100/window_height)
+		)
+		var (x, y): (Float, Float) = center
+		x -= Float(delta_x) * radius / 50
+		y -= Float(delta_y) * radius / 50
+		center = (x, y)
+		window?.set_vertices(
+			gpu: gpu,
+			command_queue: command_queue,
+			vertices_function: vertices_function,
+			center: center,
+			radius: radius
+		)
+		window?.mesh.set_z_n(
+			gpu: gpu,
+			command_queue: command_queue,
+			zero_function: zero_function
+		)
+		renderer?.frame = 0
+		renderer?.set_center(center: [x, y])
+		renderer?.set_delta_v(delta_v: [0, 0])
+		renderer?.set_renderer(gpu: gpu,
+							  metalView: metalView,
+						update_function: update_function,
+						vertex_main: vertex_main,
+						fragment_main: fragment_main,
+						n_vertex_buffer: n_vertex_buffer)
+	}
+}
+
+func Cream_color() -> MTLClearColor {
+	MTLClearColor(red: 1.0, green: 1.0, blue: 0.8, alpha: 1.0)
+}
+
+extension View {
+	func getSize(size_function: @escaping (CGSize) -> Void) -> some View {
+		background(
+			GeometryReader { geometry in
+				Color.clear
+					.preference(key: ViewPreferenceKey.self, value: geometry.size)
+			}
+		)
+		.onPreferenceChange(ViewPreferenceKey.self, perform: size_function)
+	}
+}
+
+private struct ViewPreferenceKey: PreferenceKey {
+	static var defaultValue: CGSize = .zero
+	static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
 	}
 }
 

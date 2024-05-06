@@ -1,28 +1,20 @@
 import MetalKit
 
 class GPU {
+	private var device: MTLDevice?
+	private var library: MTLLibrary?
 	init(){
+		self.device = MTLCreateSystemDefaultDevice()
+		self.library = device?.makeDefaultLibrary()
 	}
-	var device: MTLDevice?
-	func set_device(metalView: MTKView){
-		guard
-			let device = MTLCreateSystemDefaultDevice()
-		else {
-			self.device = nil
-			return
-		}
-		self.device = device
-		metalView.device = device
+	func get_device() -> MTLDevice? {
+		device
 	}
-	var library: MTLLibrary?
-	func set_library(){
-		library = device?.makeDefaultLibrary()
-	}
-	var functions: [String: MTLFunction] = [:]
+	private var functions: [String: MTLFunction] = [:]
 	func compile(name: String){
 		functions[name] = library?.makeFunction(name: name)
 	}
-	var render_pipeline_state: MTLRenderPipelineState?
+	private var render_pipeline_state: MTLRenderPipelineState?
 	func set_render_pipeline_state(metalView: MTKView,
 								   vertex_function: String,
 								   fragment_function: String,
@@ -43,7 +35,7 @@ class GPU {
 	func get_render_pipeline_state() -> MTLRenderPipelineState? {
 		render_pipeline_state
 	}
-	var compute_pipeline_state: MTLComputePipelineState?
+	private var compute_pipeline_state: MTLComputePipelineState?
 	func set_compute_pipeline_state(function_name: String){
 		guard
 			let f: MTLFunction = functions[function_name]
@@ -63,9 +55,9 @@ class GPU {
 }
 
 class Command_queue {
-	var command_queue: MTLCommandQueue?
+	private var command_queue: MTLCommandQueue?
 	init(gpu: GPU) {
-		command_queue = gpu.device?.makeCommandQueue()
+		command_queue = gpu.get_device()?.makeCommandQueue()
 	}
 	func make_command_buffer() -> MTLCommandBuffer? {
 		command_queue?.makeCommandBuffer()
@@ -73,7 +65,7 @@ class Command_queue {
 }
 
 class Command_buffer {
-	var command_buffer: MTLCommandBuffer?
+	private var command_buffer: MTLCommandBuffer?
 	init(command_queue: Command_queue){
 		self.command_buffer = command_queue.make_command_buffer()
 	}
@@ -98,7 +90,7 @@ class Command_buffer {
 }
 
 class Render_command_encoder{
-	var command_encoder: MTLRenderCommandEncoder?
+	private var command_encoder: MTLRenderCommandEncoder?
 	init(view: MTKView, command_buffer: Command_buffer) {
 		guard
 			let descriptor: MTLRenderPassDescriptor = view.currentRenderPassDescriptor
@@ -106,13 +98,21 @@ class Render_command_encoder{
 			command_encoder = nil
 			return
 		}
-		command_encoder = command_buffer.make_render_command_encoder(descriptor: descriptor)
+		command_encoder = command_buffer.make_render_command_encoder(
+			descriptor: descriptor
+		)
 	}
 	var input: Int = 0
 	func set_input(x: inout Float){
-		command_encoder?.setVertexBytes(&x,
-										length: MemoryLayout<Float>.stride,
-										index: input)
+		command_encoder?.setVertexBytes(
+			&x, length: MemoryLayout<Float>.stride, index: input
+		)
+		input += 1
+	}
+	func set_input(x: inout simd_float2){
+		command_encoder?.setVertexBytes(
+			&x, length: MemoryLayout<simd_float2>.stride, index: input
+		)
 		input += 1
 	}
 	func set_input(arr: MTLBuffer){
@@ -120,8 +120,8 @@ class Render_command_encoder{
 		input += 1
 	}
 	func set_shader_input(window: Window, render_pipeline_state: MTLRenderPipelineState?){
-		set_input(arr: window.vertexBuffer)
-		set_input(arr: window.colorBuffer)
+		set_input(arr: window.mesh.vertex_buffer)
+		set_input(arr: window.mesh.color_buffer)
 		guard
 			let pipeline_state: MTLRenderPipelineState = render_pipeline_state
 		else {
@@ -131,9 +131,9 @@ class Render_command_encoder{
 		command_encoder?.setRenderPipelineState(pipeline_state)
 		command_encoder?.drawIndexedPrimitives(
 			type: .triangle,
-			indexCount: window.triangles.count,
+			indexCount: window.mesh.n_t,
 			indexType: .uint32,
-			indexBuffer: window.trianglesBuffer,
+			indexBuffer: window.mesh.triangles_buffer,
 			indexBufferOffset: 0)
 	}
 	func end(){
@@ -142,11 +142,29 @@ class Render_command_encoder{
 }
 
 class Compute_command_encoder{
-	var command_encoder: MTLComputeCommandEncoder?
+	private var command_encoder: MTLComputeCommandEncoder?
 	init(command_buffer: Command_buffer){
 		command_encoder = command_buffer.make_compute_command_encoder()
 	}
 	var input: Int = 0
+	func set_input(x: inout UInt32){
+		command_encoder?.setBytes(&x,
+								  length: MemoryLayout<UInt32>.stride,
+								  index: input)
+		input += 1
+	}
+	func set_input(x: inout Float){
+		command_encoder?.setBytes(&x,
+								  length: MemoryLayout<Float>.stride,
+								  index: input)
+		input += 1
+	}
+	func set_input(x: inout simd_float2){
+		command_encoder?.setBytes(&x,
+								  length: MemoryLayout<simd_float2>.stride,
+								  index: input)
+		input += 1
+	}
 	func set_input(arr: MTLBuffer){
 		command_encoder?.setBuffer(arr, offset: 0, index: input)
 		input += 1

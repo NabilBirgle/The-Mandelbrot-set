@@ -1,47 +1,41 @@
 import MetalKit
 
+func pow(_ x: Int, _ y: Int) -> Int {
+	y == 0 ? 1 : pow(x, y-1)*x
+}
+
+
 struct Window {
-	var vertices: [simd_float2]
-	var triangles: [UInt32]
-	var colors: [simd_float3]
-	var z_n: [simd_float2]
-
-	var vertexBuffer: MTLBuffer
-	var trianglesBuffer: MTLBuffer
-	var colorBuffer: MTLBuffer
-	var z_nBuffer: MTLBuffer
-
-	init(device: MTLDevice){
-		let mesh: Mesh = Mesh(n: 512)
-		let a: simd_float2 = [-2, -2]
-		let b: simd_float2 = [2, 2]
-		self.vertices = mesh.vertices.map({ $0 * (b-a) + a })
-		self.triangles = mesh.triangles
-		self.colors = [simd_float3].init(repeating: [0, 0, 0], count: vertices.count)
-		self.z_n = [simd_float2].init(repeating: [0, 0], count: vertices.count)
-		guard
-			let vertexBuffer = device.makeBuffer(
-				bytes: &vertices,
-				length: MemoryLayout<simd_float2>.stride * vertices.count,
-				options: .storageModeShared),
-			let trianglesBuffer = device.makeBuffer(
-				bytes: &triangles,
-				length: MemoryLayout<UInt32>.stride * triangles.count,
-				options: .storageModeShared),
-			let colorBuffer = device.makeBuffer(
-				bytes: &colors,
-				length: MemoryLayout<simd_float3>.stride * colors.count,
-				options: .storageModeShared),
-			let z_nBuffer = device.makeBuffer(
-				bytes: &z_n,
-				length: MemoryLayout<simd_float2>.stride * vertices.count,
-				options: .storageModeShared)
-		else {
-			fatalError("Unable to create buffer")
-		}
-		self.vertexBuffer = vertexBuffer
-		self.trianglesBuffer = trianglesBuffer
-		self.colorBuffer = colorBuffer
-		self.z_nBuffer = z_nBuffer
+	let mesh: Mesh
+	init(gpu: GPU,
+		 command_queue: Command_queue,
+		 center: (Float, Float),
+		 radius: Float,
+		 vertices_function: String,
+		 triangles_function: String,
+		 zero_function: String){
+		let (x, y): (Float, Float) = center
+		let mesh: Mesh = Mesh(n: UInt32(pow(2, 10)),
+							  v0: [x-radius, y-radius],
+							  delta_v: 2 * radius,
+							  gpu: gpu)
+		mesh.set_mesh(gpu: gpu,
+					  command_queue: command_queue,
+					  vertices_function: vertices_function,
+					  triangles_function: triangles_function,
+					  zero_function: zero_function)
+		self.mesh = mesh
+	}
+	func set_vertices(gpu: GPU,
+					  command_queue: Command_queue,
+					  vertices_function: String,
+					  center: (Float, Float), 
+					  radius: Float){
+		let (x, y): (Float, Float) = center
+		mesh.v0 = [x-radius, y-radius]
+		mesh.delta_v = 2 * radius
+		mesh.set_vertices(gpu: gpu,
+						  command_queue: command_queue,
+						  vertices_function: vertices_function)
 	}
 }
