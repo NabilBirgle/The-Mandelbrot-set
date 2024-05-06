@@ -61,7 +61,11 @@ struct MetalView: View {
 	@State var window_width: CGFloat = 0
 	@State var window_height: CGFloat = 0
 	@State var center: (Float, Float) = (0, 0)
-	@State var radius: Float = 2
+	@State var zoom: Int = 0
+//	var radius: Float { get { Float(2) / Float(pow(2, zoom)) }}
+	func radius(zoom: Int) -> Float {
+		Float(2) / Float(pow(2, zoom))
+	}
 	@State var window: Window?
 	@State private var renderer: Renderer?
 	var body: some View {
@@ -70,6 +74,9 @@ struct MetalView: View {
 			.onAppear(perform: new_mandelbrot)
 			.getSize(size_function: new_size)
 			.gesture(drag_mandelbrot)
+			.onTapGesture(count: 2, perform: zoom_mandelbrot)
+
+
 	}
 	func new_size(size: CGSize) -> Void {
 		window_height = size.height
@@ -80,7 +87,7 @@ struct MetalView: View {
 			gpu: gpu,
 			command_queue: command_queue,
 			center: center,
-			radius: radius,
+			radius: radius(zoom: zoom),
 			vertices_function: vertices_function,
 			triangles_function: triangles_function,
 			zero_function: zero_function
@@ -91,6 +98,8 @@ struct MetalView: View {
 			command_queue: command_queue,
 			metalView: metalView,
 			window: w,
+			center: center,
+			radius: radius(zoom: zoom),
 			update_function: update_function,
 			vertex_main: vertex_main,
 			fragment_main: fragment_main,
@@ -98,21 +107,19 @@ struct MetalView: View {
 		)
 		metalView.delegate = renderer
 	}
-//	@State private var isDragging = false
-//	@State var delta: (Int, Int) = (0, 0)
 	var drag_mandelbrot: some Gesture {
 		DragGesture()
 			.onChanged(dragging_mandelbrot)
-//			.onChanged { _ in self.isDragging = true }
-			.onEnded { d in shift_mandelbrot(d: d) }
+			.onEnded(shift_mandelbrot)
 	}
 	func dragging_mandelbrot(d: DragGesture.Value){
 		let (delta_x, delta_y): (Int, Int) = (
 			Int(d.translation.width*100/window_width),
 			-Int(d.translation.height*100/window_height)
 		)
+		let r = radius(zoom: zoom)
 		renderer?.set_delta_v(
-			delta_v: [Float(delta_x)*radius/50, Float(delta_y)*radius/50]
+			delta_v: (Float(delta_x)*r/50, Float(delta_y)*r/50)
 		)
 	}
 	func shift_mandelbrot(d: DragGesture.Value){
@@ -121,15 +128,16 @@ struct MetalView: View {
 			-Int(d.translation.height*100/window_height)
 		)
 		var (x, y): (Float, Float) = center
-		x -= Float(delta_x) * radius / 50
-		y -= Float(delta_y) * radius / 50
+		let r = radius(zoom: zoom)
+		x -= Float(delta_x) * r / 50
+		y -= Float(delta_y) * r / 50
 		center = (x, y)
 		window?.set_vertices(
 			gpu: gpu,
 			command_queue: command_queue,
 			vertices_function: vertices_function,
 			center: center,
-			radius: radius
+			radius: r
 		)
 		window?.mesh.set_z_n(
 			gpu: gpu,
@@ -137,14 +145,30 @@ struct MetalView: View {
 			zero_function: zero_function
 		)
 		renderer?.frame = 0
-		renderer?.set_center(center: [x, y])
-		renderer?.set_delta_v(delta_v: [0, 0])
+		renderer?.set_center(center: center)
+		renderer?.set_delta_v(delta_v: (0, 0))
 		renderer?.set_renderer(gpu: gpu,
-							  metalView: metalView,
-						update_function: update_function,
-						vertex_main: vertex_main,
-						fragment_main: fragment_main,
-						n_vertex_buffer: n_vertex_buffer)
+							   update_function: update_function)
+	}
+	func zoom_mandelbrot(){
+		zoom += 1
+		let r = radius(zoom: zoom)
+		window?.set_vertices(
+			gpu: gpu,
+			command_queue: command_queue,
+			vertices_function: vertices_function,
+			center: center,
+			radius: r
+		)
+		window?.mesh.set_z_n(
+			gpu: gpu,
+			command_queue: command_queue,
+			zero_function: zero_function
+		)
+		renderer?.frame = 0
+		renderer?.set_radius(radius: r)
+		renderer?.set_renderer(gpu: gpu,
+							   update_function: update_function)
 	}
 }
 

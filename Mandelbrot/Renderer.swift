@@ -4,10 +4,14 @@ class Renderer: NSObject {
 	let gpu: GPU
 	let command_queue: Command_queue
 	var window: Window
+	var center: simd_float2
+	var radius: Float
 	init(gpu: GPU,
 		 command_queue: Command_queue,
 		 metalView: MTKView,
 		 window: Window,
+		 center: (Float, Float),
+		 radius: Float,
 		 update_function: String,
 		 vertex_main: String,
 		 fragment_main: String,
@@ -22,31 +26,26 @@ class Renderer: NSObject {
 		self.gpu = gpu
 		self.command_queue = command_queue
 		self.window = window
+		let (x, y) = center
+		self.center = [x, y]
+		self.radius = radius
 		super.init()
 	}
 	func set_renderer(gpu: GPU,
-					  metalView: MTKView,
-					  update_function: String,
-					  vertex_main: String,
-					  fragment_main: String,
-					  n_vertex_buffer: Int){
+					  update_function: String){
 		gpu.set_compute_pipeline_state(function_name: update_function)
-		gpu.set_render_pipeline_state(
-			metalView: metalView,
-			vertex_function: vertex_main,
-			fragment_function: fragment_main,
-			n_buffer: n_vertex_buffer
-		)
 	}
-	var center: simd_float2 = [0, 0]
-	func set_center(center: simd_float2){
-		self.center = center
+	func set_center(center: (Float, Float)){
+		let (x, y) = center
+		self.center = [x, y]
 	}
-	var radius: Float = 2
-//	var scale: Float = 0.5 //* 0.9
+	func set_radius(radius: Float){
+		self.radius = radius
+	}
 	var delta_v: simd_float2 = [0, 0]
-	func set_delta_v(delta_v: simd_float2){
-		self.delta_v = delta_v
+	func set_delta_v(delta_v: (Float, Float)){
+		let (delta_x, delta_y) = delta_v
+		self.delta_v = [delta_x, delta_y]
 	}
 	var frame: Int = 0
 }
