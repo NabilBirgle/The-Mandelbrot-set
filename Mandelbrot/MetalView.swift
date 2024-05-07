@@ -68,15 +68,107 @@ struct MetalView: View {
 	}
 	@State var window: Window?
 	@State private var renderer: Renderer?
+	@State private var showAlert = false
+	@State private var input_x = ""
+	@State private var input_y = ""
+	@State private var input_zoom = ""
+	@State private var show_alert: Bool = false
 	var body: some View {
-		MetalViewRepresentable(metalView: $metalView)
-			.scaledToFit()
-			.onAppear(perform: new_mandelbrot)
-			.getSize(size_function: new_size)
-			.gesture(drag_mandelbrot)
-			.onTapGesture(count: 2, perform: zoom_mandelbrot)
+		ZStack(alignment: .bottomTrailing){
+			ZStack(alignment: .bottomLeading){
+				ZStack(alignment: .topTrailing){
+					ZStack {
+						MetalViewRepresentable(metalView: $metalView)
+//							.scaledToFit()
+//							.scaledToFill()
+							.onAppear(perform: new_mandelbrot)
+							.getSize(size_function: new_size)
+							.gesture(drag_mandelbrot)
+							.onTapGesture(count: 1, perform: show_button)
+							.gesture(magnification)
+					}
+					if !hidden {
+						Button(action: hide_button){
+							Label("Hide", systemImage: "eye")
+						}
+						.padding()
+					}
+				}
+				if !hidden {
+					Button(action: { show_alert.toggle() }){
+						let (x, y): (Float, Float) = center
+						let text = "x: \(x)\ny: \(y)\nzoom: \(zoom)"
+						Label(text, systemImage: "").lineLimit(3)
+					}
+					.lineLimit(3, reservesSpace: true)
+					.confirmationDialog("New coordinate", isPresented: $show_alert, actions: {
+						TextField("x", text: $input_x)
+						TextField("y", text: $input_y)
+						TextField("zoom", text: $input_zoom)
+						Button("Ok") {
+							update_mandelbrot()
+						}
+						Button("Cancel", role: .cancel) {
+						}
+					})
+					.padding()
+				}
+			}
+			if !hidden {
+				VStack {
+					VStack{
+						Button(action: zoom_mandelbrot){
+							Label("+", systemImage: "")
+								.labelStyle(.titleOnly)
+						}
+						Button(action: unzoom_mandelbrot){
+							Label("-", systemImage: "")
+								.labelStyle(.titleOnly)
+						}
+					}
+				}
+				.padding()
+			}
+		}
+	}
+	func update_mandelbrot(){
+		guard
+			let x: Float = Float(input_x),
+			let y: Float = Float(input_y),
+			let z: Int = Int(input_zoom)
+		else {
+			return
+		}
+		center = (x, y)
+		zoom = z
+		let r = radius(zoom: zoom)
+		center = (x, y)
+		window?.set_vertices(
+			gpu: gpu,
+			command_queue: command_queue,
+			vertices_function: vertices_function,
+			center: center,
+			radius: r
+		)
+		window?.mesh.set_z_n(
+			gpu: gpu,
+			command_queue: command_queue,
+			zero_function: zero_function
+		)
+		renderer?.frame = 0
+		renderer?.set_center(center: center)
+		renderer?.set_radius(radius: r)
+		renderer?.set_renderer(gpu: gpu,
+							   update_function: update_function)
 
 
+	}
+	@State var hidden: Bool = false
+	func hide_button() -> Void {
+		hidden = true
+	}
+	func show_button() -> Void {
+		hidden = false
 	}
 	func new_size(size: CGSize) -> Void {
 		window_height = size.height
@@ -150,6 +242,18 @@ struct MetalView: View {
 		renderer?.set_renderer(gpu: gpu,
 							   update_function: update_function)
 	}
+	@State private var magnifyBy = 1.0
+	var magnification: some Gesture {
+		MagnifyGesture()
+			.onEnded({value in
+				magnifyBy = value.magnification
+				if magnifyBy > 2 {
+					zoom_mandelbrot()
+				} else if magnifyBy < 0.5 {
+					unzoom_mandelbrot()
+				}
+			})
+	}
 	func zoom_mandelbrot(){
 		zoom += 1
 		let r = radius(zoom: zoom)
@@ -169,6 +273,30 @@ struct MetalView: View {
 		renderer?.set_radius(radius: r)
 		renderer?.set_renderer(gpu: gpu,
 							   update_function: update_function)
+	}
+	func unzoom_mandelbrot(){
+		if zoom <= 0 {
+			return
+		}
+		zoom -= 1
+		let r = radius(zoom: zoom)
+		window?.set_vertices(
+			gpu: gpu,
+			command_queue: command_queue,
+			vertices_function: vertices_function,
+			center: center,
+			radius: r
+		)
+		window?.mesh.set_z_n(
+			gpu: gpu,
+			command_queue: command_queue,
+			zero_function: zero_function
+		)
+		renderer?.frame = 0
+		renderer?.set_radius(radius: r)
+		renderer?.set_renderer(gpu: gpu,
+							   update_function: update_function)
+
 	}
 }
 

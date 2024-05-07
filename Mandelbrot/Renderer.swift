@@ -59,9 +59,9 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-		if frame == 0 {
+//		if frame == 0 {
 			update_window(command_buffer: command_buffer)
-		}
+//		}
 		draw(view: view, command_buffer: command_buffer)
 		frame = (frame + 1) % 60
 		command_buffer.commit()
