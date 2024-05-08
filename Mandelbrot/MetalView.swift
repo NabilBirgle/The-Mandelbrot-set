@@ -56,7 +56,7 @@ struct MetalView: View {
 		self.command_queue = Command_queue(gpu: gpu)
 		self.metalView = MTKView()
 		metalView.device = gpu.get_device()
-		metalView.clearColor = Cream_color()
+		metalView.clearColor = Clear_color()
 	}
 	@State var window_width: CGFloat = 0
 	@State var window_height: CGFloat = 0
@@ -68,68 +68,122 @@ struct MetalView: View {
 	}
 	@State var window: Window?
 	@State private var renderer: Renderer?
-	@State private var showAlert = false
-	@State private var input_x = ""
-	@State private var input_y = ""
-	@State private var input_zoom = ""
+	@State private var input_x: String = ""
+	@State private var input_y: String = ""
+	@State private var input_zoom: String = ""
 	@State private var show_alert: Bool = false
 	var body: some View {
-		ZStack(alignment: .bottomTrailing){
-			ZStack(alignment: .bottomLeading){
-				ZStack(alignment: .topTrailing){
-					ZStack {
-						MetalViewRepresentable(metalView: $metalView)
-//							.scaledToFit()
-//							.scaledToFill()
-							.onAppear(perform: new_mandelbrot)
-							.getSize(size_function: new_size)
-							.gesture(drag_mandelbrot)
-							.onTapGesture(count: 1, perform: show_button)
-							.gesture(magnification)
-					}
-					if !hidden {
-						Button(action: hide_button){
-							Label("Hide", systemImage: "eye")
+		ZStack(alignment: .topLeading){
+			ZStack(alignment: .topTrailing){
+				ZStack(alignment: .bottomLeading){
+					ZStack(alignment: .bottomTrailing){
+						ZStack {
+							MetalViewRepresentable(metalView: $metalView)
+								.scaledToFit()
+//								.scaledToFill()
+								.onAppear(perform: new_mandelbrot)
+								.getSize(size_function: new_size)
+								.gesture(drag_mandelbrot)
+								.onTapGesture(count: 1, perform: show_button)
+								.gesture(magnification)
 						}
-						.padding()
+						if !hidden { zoom_corner.padding() }
 					}
+					if !hidden { center_corner.padding() }
 				}
-				if !hidden {
-					Button(action: { show_alert.toggle() }){
-						let (x, y): (Float, Float) = center
-						let text = "x: \(x)\ny: \(y)\nzoom: \(zoom)"
-						Label(text, systemImage: "").lineLimit(3)
-					}
-					.lineLimit(3, reservesSpace: true)
-					.confirmationDialog("New coordinate", isPresented: $show_alert, actions: {
-						TextField("x", text: $input_x)
-						TextField("y", text: $input_y)
-						TextField("zoom", text: $input_zoom)
-						Button("Ok") {
-							update_mandelbrot()
-						}
-						Button("Cancel", role: .cancel) {
-						}
-					})
-					.padding()
-				}
+				if !hidden { hide_corner.padding() }
 			}
-			if !hidden {
-				VStack {
-					VStack{
-						Button(action: zoom_mandelbrot){
-							Label("+", systemImage: "")
-								.labelStyle(.titleOnly)
-						}
-						Button(action: unzoom_mandelbrot){
-							Label("-", systemImage: "")
-								.labelStyle(.titleOnly)
-						}
-					}
-				}
-				.padding()
-			}
+			if !hidden { background_corner.padding() }
 		}
+	}
+	@State private var isWhite: Bool = true
+	var background_corner: some View {
+		Menu("Background"){
+			Button(action: {
+				isWhite = true
+				metalView.clearColor = Clear_color()
+				renderer?.set_background(isWhite: isWhite)
+				color_mandelbrot()
+			}) {
+				Label("White", systemImage: isWhite ? "checkmark" : "")
+					.labelStyle(.titleAndIcon)
+			}
+			Button(action: {
+				isWhite = false
+				metalView.clearColor = Clear_color()
+				renderer?.set_background(isWhite: isWhite)
+				color_mandelbrot()
+			}) {
+				Label("Cream", systemImage: !isWhite ? "checkmark" : " ")
+					.labelStyle(.titleAndIcon)
+			}
+		}.frame(width: 125)
+			.buttonStyle(.bordered)
+	}
+	func color_mandelbrot(){
+		window?.mesh.set_z_n(
+			gpu: gpu,
+			command_queue: command_queue,
+			zero_function: zero_function
+		)
+		renderer?.frame = 0
+		renderer?.set_renderer(gpu: gpu,
+							   update_function: update_function)
+	}
+	@State var hidden: Bool = false
+	func hide_button() -> Void {
+		hidden = true
+	}
+	func show_button() -> Void {
+		hidden = false
+	}
+	var hide_corner: some View {
+		Button(action: hide_button){
+			Label("Hide", systemImage: "eye")
+		}
+		.buttonStyle(.bordered)
+	}
+	var center_corner: some View {
+		Button(action: {
+			let (x, y): (Float, Float) = center
+			let zoom: Int = zoom
+			input_x = "\(x)"
+			input_y = "\(y)"
+			input_zoom = "\(zoom)"
+			show_alert = true
+		}){
+			let (x, y): (Float, Float) = center
+			let text = "x: \(x)\ny: \(y)\nzoom: \(zoom)"
+			Label(text, systemImage: "").lineLimit(3)
+		}
+		.buttonStyle(.bordered)
+		.lineLimit(3, reservesSpace: true)
+		.alert(
+			"New coordinate",
+			isPresented: $show_alert,
+			actions: {
+				TextField("x", text: $input_x)
+				TextField("y", text: $input_y)
+				TextField("zoom", text: $input_zoom)
+				Button("Ok") {
+					update_mandelbrot()
+				}
+				Button("Cancel", role: .cancel) {
+				}
+			}
+		)
+	}
+	var zoom_corner: some View {
+		VStack {
+			Button(action: zoom_mandelbrot){
+				Label("+", systemImage: "")
+					.labelStyle(.titleOnly)
+			}
+			Button(action: unzoom_mandelbrot){
+				Label("-", systemImage: "")
+					.labelStyle(.titleOnly)
+			}
+		}.buttonStyle(.bordered)
 	}
 	func update_mandelbrot(){
 		guard
@@ -142,7 +196,6 @@ struct MetalView: View {
 		center = (x, y)
 		zoom = z
 		let r = radius(zoom: zoom)
-		center = (x, y)
 		window?.set_vertices(
 			gpu: gpu,
 			command_queue: command_queue,
@@ -160,15 +213,6 @@ struct MetalView: View {
 		renderer?.set_radius(radius: r)
 		renderer?.set_renderer(gpu: gpu,
 							   update_function: update_function)
-
-
-	}
-	@State var hidden: Bool = false
-	func hide_button() -> Void {
-		hidden = true
-	}
-	func show_button() -> Void {
-		hidden = false
 	}
 	func new_size(size: CGSize) -> Void {
 		window_height = size.height
@@ -298,11 +342,19 @@ struct MetalView: View {
 							   update_function: update_function)
 
 	}
+	func Clear_color() -> MTLClearColor {
+		isWhite ? White_color() : Cream_color()
+	}
+
+	func White_color() -> MTLClearColor {
+		MTLClearColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+	}
+
+	func Cream_color() -> MTLClearColor {
+		MTLClearColor(red: 1.0, green: 1.0, blue: 0.8, alpha: 1.0)
+	}
 }
 
-func Cream_color() -> MTLClearColor {
-	MTLClearColor(red: 1.0, green: 1.0, blue: 0.8, alpha: 1.0)
-}
 
 extension View {
 	func getSize(size_function: @escaping (CGSize) -> Void) -> some View {

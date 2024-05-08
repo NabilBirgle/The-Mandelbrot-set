@@ -147,6 +147,12 @@ class Compute_command_encoder{
 		command_encoder = command_buffer.make_compute_command_encoder()
 	}
 	var input: Int = 0
+	func set_input(x: inout Bool){
+		command_encoder?.setBytes(&x,
+								  length: MemoryLayout<Bool>.stride,
+								  index: input)
+		input += 1
+	}
 	func set_input(x: inout UInt32){
 		command_encoder?.setBytes(&x,
 								  length: MemoryLayout<UInt32>.stride,

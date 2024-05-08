@@ -48,6 +48,10 @@ class Renderer: NSObject {
 		self.delta_v = [delta_x, delta_y]
 	}
 	var frame: Int = 0
+	var isWhite: Bool = true
+	func set_background(isWhite: Bool){
+		self.isWhite = isWhite
+	}
 }
 
 extension Renderer: MTKViewDelegate {
@@ -82,6 +86,7 @@ extension Renderer: MTKViewDelegate {
 		let compute_command_encoder: Compute_command_encoder
 		= Compute_command_encoder(command_buffer: command_buffer)
 		compute_command_encoder.set_input(arr: window.mesh.vertex_buffer)
+		compute_command_encoder.set_input(x: &isWhite)
 		compute_command_encoder.set_input(arr: window.mesh.z_n_buffer)
 		compute_command_encoder.set_input(arr: window.mesh.color_buffer)
 		compute_command_encoder.set_index_input(
