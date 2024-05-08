@@ -273,8 +273,10 @@ struct MetalView: View {
 			-Int(d.translation.height*100/window_height)
 		)
 		let r = radius(zoom: zoom)
+		let w = r * Float(window_width) / min(Float(window_width),Float(window_height))
+		let h = r * Float(window_height) / min(Float(window_width), Float(window_height))
 		renderer?.set_delta_v(
-			delta_v: (Float(delta_x)*r/50, Float(delta_y)*r/50)
+			delta_v: (Float(delta_x)*w/50, Float(delta_y)*h/50)
 		)
 	}
 	func shift_mandelbrot(d: DragGesture.Value){
@@ -284,8 +286,10 @@ struct MetalView: View {
 		)
 		var (x, y): (Float, Float) = center
 		let r = radius(zoom: zoom)
-		x -= Float(delta_x) * r / 50
-		y -= Float(delta_y) * r / 50
+		let w = r * Float(window_width) / min(Float(window_width),Float(window_height))
+		let h = r * Float(window_height) / min(Float(window_width), Float(window_height))
+		x -= Float(delta_x) * w / 50
+		y -= Float(delta_y) * h / 50
 		center = (x, y)
 		window?.set_vertices(
 			gpu: gpu,

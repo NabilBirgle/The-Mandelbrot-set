@@ -45,14 +45,14 @@
 /* Begin PBXFileReference section */
 		7C8C15932BE6820F009C82FE /* Mesh.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Mesh.metal; sourceTree = "<group>"; };
 		7C8C15CC2BE8F480009C82FE /* Cream_color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Cream_color.h; sourceTree = "<group>"; };
-		7C91B0E82BE28EA700493738 /* Mandelbrot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mandelbrot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C91B0E82BE28EA700493738 /* The Mandelbrot set.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "The Mandelbrot set.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C91B0EB2BE28EA700493738 /* MandelbrotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandelbrotApp.swift; sourceTree = "<group>"; };
 		7C91B0EF2BE28EAA00493738 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7C91B0F12BE28EAA00493738 /* Mandelbrot.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mandelbrot.entitlements; sourceTree = "<group>"; };
 		7C91B0F32BE28EAA00493738 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		7C91B0F92BE28EAA00493738 /* MandelbrotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MandelbrotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C91B0F92BE28EAA00493738 /* The Mandelbrot setTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "The Mandelbrot setTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C91B0FD2BE28EAA00493738 /* MandelbrotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandelbrotTests.swift; sourceTree = "<group>"; };
-		7C91B1032BE28EAA00493738 /* MandelbrotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MandelbrotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C91B1032BE28EAA00493738 /* The Mandelbrot setUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "The Mandelbrot setUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C91B1072BE28EAA00493738 /* MandelbrotUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandelbrotUITests.swift; sourceTree = "<group>"; };
 		7C91B1092BE28EAA00493738 /* MandelbrotUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandelbrotUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7C91B12D2BE28F1800493738 /* Mesh.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mesh.swift; sourceTree = "<group>"; };
@@ -104,9 +104,9 @@
 		7C91B0E92BE28EA700493738 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7C91B0E82BE28EA700493738 /* Mandelbrot.app */,
-				7C91B0F92BE28EAA00493738 /* MandelbrotTests.xctest */,
-				7C91B1032BE28EAA00493738 /* MandelbrotUITests.xctest */,
+				7C91B0E82BE28EA700493738 /* The Mandelbrot set.app */,
+				7C91B0F92BE28EAA00493738 /* The Mandelbrot setTests.xctest */,
+				7C91B1032BE28EAA00493738 /* The Mandelbrot setUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -161,9 +161,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7C91B0E72BE28EA700493738 /* Mandelbrot */ = {
+		7C91B0E72BE28EA700493738 /* The Mandelbrot set */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7C91B10D2BE28EAA00493738 /* Build configuration list for PBXNativeTarget "Mandelbrot" */;
+			buildConfigurationList = 7C91B10D2BE28EAA00493738 /* Build configuration list for PBXNativeTarget "The Mandelbrot set" */;
 			buildPhases = (
 				7C91B0E42BE28EA700493738 /* Sources */,
 				7C91B0E52BE28EA700493738 /* Frameworks */,
@@ -173,14 +173,14 @@
 			);
 			dependencies = (
 			);
-			name = Mandelbrot;
+			name = "The Mandelbrot set";
 			productName = Mandelbrot;
-			productReference = 7C91B0E82BE28EA700493738 /* Mandelbrot.app */;
+			productReference = 7C91B0E82BE28EA700493738 /* The Mandelbrot set.app */;
 			productType = "com.apple.product-type.application";
 		};
-		7C91B0F82BE28EAA00493738 /* MandelbrotTests */ = {
+		7C91B0F82BE28EAA00493738 /* The Mandelbrot setTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7C91B1102BE28EAA00493738 /* Build configuration list for PBXNativeTarget "MandelbrotTests" */;
+			buildConfigurationList = 7C91B1102BE28EAA00493738 /* Build configuration list for PBXNativeTarget "The Mandelbrot setTests" */;
 			buildPhases = (
 				7C91B0F52BE28EAA00493738 /* Sources */,
 				7C91B0F62BE28EAA00493738 /* Frameworks */,
@@ -191,14 +191,14 @@
 			dependencies = (
 				7C91B0FB2BE28EAA00493738 /* PBXTargetDependency */,
 			);
-			name = MandelbrotTests;
+			name = "The Mandelbrot setTests";
 			productName = MandelbrotTests;
-			productReference = 7C91B0F92BE28EAA00493738 /* MandelbrotTests.xctest */;
+			productReference = 7C91B0F92BE28EAA00493738 /* The Mandelbrot setTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		7C91B1022BE28EAA00493738 /* MandelbrotUITests */ = {
+		7C91B1022BE28EAA00493738 /* The Mandelbrot setUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7C91B1132BE28EAA00493738 /* Build configuration list for PBXNativeTarget "MandelbrotUITests" */;
+			buildConfigurationList = 7C91B1132BE28EAA00493738 /* Build configuration list for PBXNativeTarget "The Mandelbrot setUITests" */;
 			buildPhases = (
 				7C91B0FF2BE28EAA00493738 /* Sources */,
 				7C91B1002BE28EAA00493738 /* Frameworks */,
@@ -209,9 +209,9 @@
 			dependencies = (
 				7C91B1052BE28EAA00493738 /* PBXTargetDependency */,
 			);
-			name = MandelbrotUITests;
+			name = "The Mandelbrot setUITests";
 			productName = MandelbrotUITests;
-			productReference = 7C91B1032BE28EAA00493738 /* MandelbrotUITests.xctest */;
+			productReference = 7C91B1032BE28EAA00493738 /* The Mandelbrot setUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -237,7 +237,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7C91B0E32BE28EA700493738 /* Build configuration list for PBXProject "Mandelbrot" */;
+			buildConfigurationList = 7C91B0E32BE28EA700493738 /* Build configuration list for PBXProject "The Mandelbrot set" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -250,9 +250,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7C91B0E72BE28EA700493738 /* Mandelbrot */,
-				7C91B0F82BE28EAA00493738 /* MandelbrotTests */,
-				7C91B1022BE28EAA00493738 /* MandelbrotUITests */,
+				7C91B0E72BE28EA700493738 /* The Mandelbrot set */,
+				7C91B0F82BE28EAA00493738 /* The Mandelbrot setTests */,
+				7C91B1022BE28EAA00493738 /* The Mandelbrot setUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -324,12 +324,12 @@
 /* Begin PBXTargetDependency section */
 		7C91B0FB2BE28EAA00493738 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7C91B0E72BE28EA700493738 /* Mandelbrot */;
+			target = 7C91B0E72BE28EA700493738 /* The Mandelbrot set */;
 			targetProxy = 7C91B0FA2BE28EAA00493738 /* PBXContainerItemProxy */;
 		};
 		7C91B1052BE28EAA00493738 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7C91B0E72BE28EA700493738 /* Mandelbrot */;
+			target = 7C91B0E72BE28EA700493738 /* The Mandelbrot set */;
 			targetProxy = 7C91B1042BE28EAA00493738 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -542,7 +542,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mandelbrot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mandelbrot";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/The Mandelbrot set.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/The Mandelbrot set";
 			};
 			name = Debug;
 		};
@@ -565,7 +565,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mandelbrot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mandelbrot";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/The Mandelbrot set.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/The Mandelbrot set";
 			};
 			name = Release;
 		};
@@ -616,7 +616,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7C91B0E32BE28EA700493738 /* Build configuration list for PBXProject "Mandelbrot" */ = {
+		7C91B0E32BE28EA700493738 /* Build configuration list for PBXProject "The Mandelbrot set" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7C91B10B2BE28EAA00493738 /* Debug */,
@@ -625,7 +625,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7C91B10D2BE28EAA00493738 /* Build configuration list for PBXNativeTarget "Mandelbrot" */ = {
+		7C91B10D2BE28EAA00493738 /* Build configuration list for PBXNativeTarget "The Mandelbrot set" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7C91B10E2BE28EAA00493738 /* Debug */,
@@ -634,7 +634,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7C91B1102BE28EAA00493738 /* Build configuration list for PBXNativeTarget "MandelbrotTests" */ = {
+		7C91B1102BE28EAA00493738 /* Build configuration list for PBXNativeTarget "The Mandelbrot setTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7C91B1112BE28EAA00493738 /* Debug */,
@@ -643,7 +643,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7C91B1132BE28EAA00493738 /* Build configuration list for PBXNativeTarget "MandelbrotUITests" */ = {
+		7C91B1132BE28EAA00493738 /* Build configuration list for PBXNativeTarget "The Mandelbrot setUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7C91B1142BE28EAA00493738 /* Debug */,
