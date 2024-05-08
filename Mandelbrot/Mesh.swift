@@ -6,12 +6,12 @@ class Mesh {
 	var n_v: Int
 	var n_t: Int
 	var v0: simd_float2
-	var delta_v: Float
+	var delta_v: simd_float2
 	var vertex_buffer: MTLBuffer
 	var triangles_buffer: MTLBuffer
 	var color_buffer: MTLBuffer
 	var z_n_buffer: MTLBuffer
-	init(n: UInt32, v0: simd_float2, delta_v: Float, gpu: GPU){
+	init(n: UInt32, v0: simd_float2, delta_v: simd_float2, gpu: GPU){
 		self.n = n
 		self.n_v = Int((n+1)*(n+1) + n*n)
 		self.n_t = Int(3*4*n*n)

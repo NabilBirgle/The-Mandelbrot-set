@@ -18,7 +18,7 @@ uint J(uint index, uint n){
 kernel
 void vertices_function(constant uint& n [[buffer(0)]],
 					   constant float2& v0 [[buffer(1)]],
-					   constant float& delta [[buffer(2)]],
+					   constant float2& delta [[buffer(2)]],
 					   device float2* v [[ buffer(3) ]],
 					   uint index [[ thread_position_in_grid ]]){
 	float2 z;

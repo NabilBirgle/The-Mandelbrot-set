@@ -16,11 +16,15 @@ VertexOut vertex_main(constant float2& center [[buffer(0)]],
 					  constant float& radius [[buffer(1)]],
 					  constant float2& delta_v [[buffer(2)]],
 					  constant float& magnify [[buffer(3)]],
+					  constant float& width [[buffer(4)]],
+					  constant float& height [[buffer(5)]],
 					  VertexIn v [[stage_in]]){
-	float4 position = {v.position.x, v.position.y, 0., 1.};
+	float2 p = (v.position + delta_v - center) / radius * magnify;
+	float2 window = {width, height};
+	float m = width < height ? width : height;
+	p = p * m / window;
+	float4 position = {p.x, p.y, 0.0, 1.0};
 	float4 color = {v.color.x, v.color.y, v.color.z, 1.};
-	position.x = (v.position.x + delta_v.x - center.x) / radius * magnify;
-	position.y = (v.position.y + delta_v.y - center.y) / radius * magnify;
 	VertexOut out { .position = position, .color = color };
 	return out;
 }

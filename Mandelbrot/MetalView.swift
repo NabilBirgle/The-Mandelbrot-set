@@ -42,7 +42,7 @@ struct MetalView: View {
 	let update_function =  "update_function"
 	let vertex_main = "vertex_main"
 	let fragment_main = "fragment_main"
-	let n_vertex_buffer: Int = 4
+	let n_vertex_buffer: Int = 6
 	@State private var metalView: MTKView
 	init(){
 		let gpu = GPU()
@@ -73,8 +73,6 @@ struct MetalView: View {
 				ZStack(alignment: .bottomLeading){
 					ZStack(alignment: .bottomTrailing){
 						MetalViewRepresentable(metalView: $metalView)
-							.scaledToFit()
-						//	.scaledToFill()
 							.onAppear(perform: new_mandelbrot)
 							.getSize(size_function: new_size)
 							.gesture(drag_mandelbrot)
@@ -198,7 +196,9 @@ struct MetalView: View {
 			command_queue: command_queue,
 			vertices_function: vertices_function,
 			center: center,
-			radius: r
+			radius: r,
+			width: Float(window_width),
+			height: Float(window_height)
 		)
 		window?.mesh.set_z_n(
 			gpu: gpu,
@@ -214,6 +214,25 @@ struct MetalView: View {
 	func new_size(size: CGSize) -> Void {
 		window_height = size.height
 		window_width = size.width
+		let r = radius(zoom: zoom)
+		window?.set_vertices(
+			gpu: gpu,
+			command_queue: command_queue,
+			vertices_function: vertices_function,
+			center: center,
+			radius: r,
+			width: Float(window_width),
+			height: Float(window_height)
+		)
+		window?.mesh.set_z_n(
+			gpu: gpu,
+			command_queue: command_queue,
+			zero_function: zero_function
+		)
+		renderer?.set_window(width: Float(window_width), height: Float(window_height))
+		renderer?.frame = 0
+		renderer?.set_renderer(gpu: gpu,
+							   update_function: update_function)
 	}
 	func new_mandelbrot() -> Void {
 		window = Window(
@@ -221,6 +240,8 @@ struct MetalView: View {
 			command_queue: command_queue,
 			center: center,
 			radius: radius(zoom: zoom),
+			width: Float(window_width),
+			height: Float(window_height),
 			vertices_function: vertices_function,
 			triangles_function: triangles_function,
 			zero_function: zero_function
@@ -239,6 +260,7 @@ struct MetalView: View {
 			n_vertex_buffer: n_vertex_buffer
 		)
 		metalView.delegate = renderer
+		renderer?.set_window(width: Float(window_width), height: Float(window_height))
 	}
 	var drag_mandelbrot: some Gesture {
 		DragGesture()
@@ -270,7 +292,9 @@ struct MetalView: View {
 			command_queue: command_queue,
 			vertices_function: vertices_function,
 			center: center,
-			radius: r
+			radius: r,
+			width: Float(window_width),
+			height: Float(window_height)
 		)
 		window?.mesh.set_z_n(
 			gpu: gpu,
@@ -307,7 +331,9 @@ struct MetalView: View {
 			command_queue: command_queue,
 			vertices_function: vertices_function,
 			center: center,
-			radius: r
+			radius: r,
+			width: Float(window_width),
+			height: Float(window_height)
 		)
 		window?.mesh.set_z_n(
 			gpu: gpu,
@@ -330,7 +356,9 @@ struct MetalView: View {
 			command_queue: command_queue,
 			vertices_function: vertices_function,
 			center: center,
-			radius: r
+			radius: r,
+			width: Float(window_width),
+			height: Float(window_height)
 		)
 		window?.mesh.set_z_n(
 			gpu: gpu,

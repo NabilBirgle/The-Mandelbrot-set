@@ -9,12 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
 	var body: some View {
-		VStack {
-			MetalView()
-				.border(Color.black, width: 2)
-			Text("L'ensemble de Mandelbrot")
-		}
-		.padding()
+//		VStack {
+		MetalView().border(Color.black, width: 0)
+//				.border(Color.black, width: 2)
+//			Text("L'ensemble de Mandelbrot")
+//		}
+//		.padding()
 	}
 }
 
