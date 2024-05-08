@@ -42,7 +42,7 @@ struct MetalView: View {
 	let update_function =  "update_function"
 	let vertex_main = "vertex_main"
 	let fragment_main = "fragment_main"
-	let n_vertex_buffer: Int = 3
+	let n_vertex_buffer: Int = 4
 	@State private var metalView: MTKView
 	init(){
 		let gpu = GPU()
@@ -62,31 +62,24 @@ struct MetalView: View {
 	@State var window_height: CGFloat = 0
 	@State var center: (Float, Float) = (0, 0)
 	@State var zoom: Int = 0
-//	var radius: Float { get { Float(2) / Float(pow(2, zoom)) }}
 	func radius(zoom: Int) -> Float {
 		Float(2) / Float(pow(2, zoom))
 	}
 	@State var window: Window?
 	@State private var renderer: Renderer?
-	@State private var input_x: String = ""
-	@State private var input_y: String = ""
-	@State private var input_zoom: String = ""
-	@State private var show_alert: Bool = false
 	var body: some View {
 		ZStack(alignment: .topLeading){
 			ZStack(alignment: .topTrailing){
 				ZStack(alignment: .bottomLeading){
 					ZStack(alignment: .bottomTrailing){
-						ZStack {
-							MetalViewRepresentable(metalView: $metalView)
-								.scaledToFit()
-//								.scaledToFill()
-								.onAppear(perform: new_mandelbrot)
-								.getSize(size_function: new_size)
-								.gesture(drag_mandelbrot)
-								.onTapGesture(count: 1, perform: show_button)
-								.gesture(magnification)
-						}
+						MetalViewRepresentable(metalView: $metalView)
+							.scaledToFit()
+						//	.scaledToFill()
+							.onAppear(perform: new_mandelbrot)
+							.getSize(size_function: new_size)
+							.gesture(drag_mandelbrot)
+							.onTapGesture(count: 1, perform: show_button)
+							.gesture(magnification)
 						if !hidden { zoom_corner.padding() }
 					}
 					if !hidden { center_corner.padding() }
@@ -117,7 +110,7 @@ struct MetalView: View {
 				Label("Cream", systemImage: !isWhite ? "checkmark" : " ")
 					.labelStyle(.titleAndIcon)
 			}
-		}.frame(width: 125)
+		}.frame(width: 120)
 			.buttonStyle(.bordered)
 	}
 	func color_mandelbrot(){
@@ -143,6 +136,10 @@ struct MetalView: View {
 		}
 		.buttonStyle(.bordered)
 	}
+	@State private var input_x: String = ""
+	@State private var input_y: String = ""
+	@State private var input_zoom: String = ""
+	@State private var show_alert: Bool = false
 	var center_corner: some View {
 		Button(action: {
 			let (x, y): (Float, Float) = center
@@ -286,11 +283,15 @@ struct MetalView: View {
 		renderer?.set_renderer(gpu: gpu,
 							   update_function: update_function)
 	}
-	@State private var magnifyBy = 1.0
 	var magnification: some Gesture {
 		MagnifyGesture()
+			.onChanged({value in
+				let magnifyBy = value.magnification
+				renderer?.set_magnify(magnify: Float(magnifyBy))
+			})
 			.onEnded({value in
-				magnifyBy = value.magnification
+				renderer?.set_magnify(magnify: 1)
+				let magnifyBy = value.magnification
 				if magnifyBy > 2 {
 					zoom_mandelbrot()
 				} else if magnifyBy < 0.5 {

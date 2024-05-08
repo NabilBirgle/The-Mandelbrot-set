@@ -52,6 +52,10 @@ class Renderer: NSObject {
 	func set_background(isWhite: Bool){
 		self.isWhite = isWhite
 	}
+	var magnify: Float = 1
+	func set_magnify(magnify: Float){
+		self.magnify = magnify
+	}
 }
 
 extension Renderer: MTKViewDelegate {
@@ -76,6 +80,7 @@ extension Renderer: MTKViewDelegate {
 		render_command_encoder.set_input(x: &center)
 		render_command_encoder.set_input(x: &radius)
 		render_command_encoder.set_input(x: &delta_v)
+		render_command_encoder.set_input(x: &magnify)
 		render_command_encoder.set_shader_input(
 			window: window,
 			render_pipeline_state: gpu.get_render_pipeline_state()
