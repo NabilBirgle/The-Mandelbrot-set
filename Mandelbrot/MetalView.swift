@@ -39,6 +39,7 @@ struct MetalView: View {
 	let vertices_function = "vertices_function"
 	let triangles_function = "triangles_function"
 	let zero_function = "zero_function"
+	let zero_color_function = "zero_color_function"
 	let update_function =  "update_function"
 	let vertex_main = "vertex_main"
 	let fragment_main = "fragment_main"
@@ -49,6 +50,7 @@ struct MetalView: View {
 		gpu.compile(name: vertices_function)
 		gpu.compile(name: triangles_function)
 		gpu.compile(name: zero_function)
+		gpu.compile(name: zero_color_function)
 		gpu.compile(name: update_function)
 		gpu.compile(name: vertex_main)
 		gpu.compile(name: fragment_main)
@@ -93,7 +95,6 @@ struct MetalView: View {
 			Button(action: {
 				isWhite = true
 				metalView.clearColor = Clear_color()
-				renderer?.set_background(isWhite: isWhite)
 				color_mandelbrot()
 			}) {
 				Label("White", systemImage: isWhite ? "checkmark" : "")
@@ -102,7 +103,6 @@ struct MetalView: View {
 			Button(action: {
 				isWhite = false
 				metalView.clearColor = Clear_color()
-				renderer?.set_background(isWhite: isWhite)
 				color_mandelbrot()
 			}) {
 				Label("Cream", systemImage: !isWhite ? "checkmark" : " ")
@@ -112,14 +112,8 @@ struct MetalView: View {
 			.buttonStyle(.bordered)
 	}
 	func color_mandelbrot(){
-		window?.mesh.set_z_n(
-			gpu: gpu,
-			command_queue: command_queue,
-			zero_function: zero_function
-		)
-		renderer?.frame = 0
-		renderer?.set_renderer(gpu: gpu,
-							   update_function: update_function)
+		renderer?.set_background(isWhite: isWhite)
+		renderer?.action_buffer.insert(.refresh(1), at: 0)
 	}
 	@State var hidden: Bool = false
 	func hide_button() -> Void {
@@ -191,53 +185,21 @@ struct MetalView: View {
 		center = (x, y)
 		zoom = z
 		let r = radius(zoom: zoom)
-		window?.set_vertices(
-			gpu: gpu,
-			command_queue: command_queue,
-			vertices_function: vertices_function,
-			center: center,
-			radius: r,
-			width: Float(window_width),
-			height: Float(window_height)
-		)
-		window?.mesh.set_z_n(
-			gpu: gpu,
-			command_queue: command_queue,
-			zero_function: zero_function
-		)
-		renderer?.frame = 0
 		renderer?.set_center(center: center)
 		renderer?.set_radius(radius: r)
-		renderer?.set_renderer(gpu: gpu,
-							   update_function: update_function)
+		renderer?.action_buffer.append(.loading(0))
+		renderer?.action_buffer.insert(.refresh(0), at: 0)
 	}
 	func new_size(size: CGSize) -> Void {
 		window_height = size.height
 		window_width = size.width
-		let r = radius(zoom: zoom)
-		window?.set_vertices(
-			gpu: gpu,
-			command_queue: command_queue,
-			vertices_function: vertices_function,
-			center: center,
-			radius: r,
-			width: Float(window_width),
-			height: Float(window_height)
-		)
-		window?.mesh.set_z_n(
-			gpu: gpu,
-			command_queue: command_queue,
-			zero_function: zero_function
-		)
 		renderer?.set_window(width: Float(window_width), height: Float(window_height))
-		renderer?.frame = 0
-		renderer?.set_renderer(gpu: gpu,
-							   update_function: update_function)
+		renderer?.action_buffer.append(.loading(0))
+		renderer?.action_buffer.insert(.refresh(0), at: 0)
 	}
 	func new_mandelbrot() -> Void {
 		window = Window(
 			gpu: gpu,
-			command_queue: command_queue,
 			center: center,
 			radius: radius(zoom: zoom),
 			width: Float(window_width),
@@ -261,6 +223,8 @@ struct MetalView: View {
 		)
 		metalView.delegate = renderer
 		renderer?.set_window(width: Float(window_width), height: Float(window_height))
+		renderer?.action_buffer.append(.loading(0))
+		renderer?.action_buffer.insert(.refresh(0), at: 0)
 	}
 	var drag_mandelbrot: some Gesture {
 		DragGesture()
@@ -291,25 +255,10 @@ struct MetalView: View {
 		x -= Float(delta_x) * w / 50
 		y -= Float(delta_y) * h / 50
 		center = (x, y)
-		window?.set_vertices(
-			gpu: gpu,
-			command_queue: command_queue,
-			vertices_function: vertices_function,
-			center: center,
-			radius: r,
-			width: Float(window_width),
-			height: Float(window_height)
-		)
-		window?.mesh.set_z_n(
-			gpu: gpu,
-			command_queue: command_queue,
-			zero_function: zero_function
-		)
-		renderer?.frame = 0
 		renderer?.set_center(center: center)
 		renderer?.set_delta_v(delta_v: (0, 0))
-		renderer?.set_renderer(gpu: gpu,
-							   update_function: update_function)
+		renderer?.action_buffer.append(.loading(0))
+		renderer?.action_buffer.insert(.refresh(0), at: 0)
 	}
 	var magnification: some Gesture {
 		MagnifyGesture()
@@ -330,24 +279,9 @@ struct MetalView: View {
 	func zoom_mandelbrot(){
 		zoom += 1
 		let r = radius(zoom: zoom)
-		window?.set_vertices(
-			gpu: gpu,
-			command_queue: command_queue,
-			vertices_function: vertices_function,
-			center: center,
-			radius: r,
-			width: Float(window_width),
-			height: Float(window_height)
-		)
-		window?.mesh.set_z_n(
-			gpu: gpu,
-			command_queue: command_queue,
-			zero_function: zero_function
-		)
-		renderer?.frame = 0
 		renderer?.set_radius(radius: r)
-		renderer?.set_renderer(gpu: gpu,
-							   update_function: update_function)
+		renderer?.action_buffer.append(.loading(0))
+		renderer?.action_buffer.insert(.refresh(0), at: 0)
 	}
 	func unzoom_mandelbrot(){
 		if zoom <= 0 {
@@ -355,25 +289,9 @@ struct MetalView: View {
 		}
 		zoom -= 1
 		let r = radius(zoom: zoom)
-		window?.set_vertices(
-			gpu: gpu,
-			command_queue: command_queue,
-			vertices_function: vertices_function,
-			center: center,
-			radius: r,
-			width: Float(window_width),
-			height: Float(window_height)
-		)
-		window?.mesh.set_z_n(
-			gpu: gpu,
-			command_queue: command_queue,
-			zero_function: zero_function
-		)
-		renderer?.frame = 0
 		renderer?.set_radius(radius: r)
-		renderer?.set_renderer(gpu: gpu,
-							   update_function: update_function)
-
+		renderer?.action_buffer.append(.loading(0))
+		renderer?.action_buffer.insert(.refresh(0), at: 0)
 	}
 	func Clear_color() -> MTLClearColor {
 		isWhite ? White_color() : Cream_color()

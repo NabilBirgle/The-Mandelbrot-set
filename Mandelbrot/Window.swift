@@ -7,7 +7,6 @@ func pow(_ x: Int, _ y: Int) -> Int {
 struct Window {
 	let mesh: Mesh
 	init(gpu: GPU,
-		 command_queue: Command_queue,
 		 center: (Float, Float),
 		 radius: Float,
 		 width: Float,
@@ -22,17 +21,12 @@ struct Window {
 							  v0: [x-w, y-h],
 							  delta_v: 2*[w, h],
 							  gpu: gpu)
-		mesh.set_mesh(gpu: gpu,
-					  command_queue: command_queue,
-					  vertices_function: vertices_function,
-					  triangles_function: triangles_function,
-					  zero_function: zero_function)
 		self.mesh = mesh
 	}
-	func set_vertices(gpu: GPU,
-					  command_queue: Command_queue,
+	func set_vertices(command_buffer: Command_buffer,
 					  vertices_function: String,
-					  center: (Float, Float), 
+					  compute_pipeline_state: MTLComputePipelineState?,
+					  center: (Float, Float),
 					  radius: Float,
 					  width: Float,
 					  height: Float){
@@ -41,8 +35,8 @@ struct Window {
 		let h = radius * height / min(width, height)
 		mesh.v0 = [x-w, y-h]
 		mesh.delta_v = 2*[w, h]
-		mesh.set_vertices(gpu: gpu,
-						  command_queue: command_queue,
-						  vertices_function: vertices_function)
+		mesh.set_vertices(command_buffer: command_buffer,
+						  vertices_function: vertices_function, 
+						  compute_pipeline_state: compute_pipeline_state)
 	}
 }

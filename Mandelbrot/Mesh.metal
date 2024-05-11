@@ -85,3 +85,19 @@ void zero_function(device float2* z [[ buffer(0) ]],
 				   uint index [[ thread_position_in_grid ]]){
 	z[index] = {0, 0};
 }
+
+static float3 cream_color(){
+	return {1.0, 1.0, 0.8};
+}
+
+static float3 white_color(){
+	return {1.0, 1.0, 1.0};
+}
+
+
+kernel
+void zero_color_function(constant bool& isWhite [[buffer(0)]],
+						 device float3* z [[ buffer(1) ]],
+						 uint index [[ thread_position_in_grid ]]){
+	z[index] = isWhite ? white_color() : cream_color();
+}

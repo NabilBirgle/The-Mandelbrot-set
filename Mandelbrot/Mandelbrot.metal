@@ -20,11 +20,11 @@ float2 mandelbrot_function(float2 z, float2 v){
 	return {x, y};
 }
 
-float3 cream_color(){
+static float3 cream_color(){
 	return {1.0, 1.0, 0.8};
 }
 
-float3 white_color(){
+static float3 white_color(){
 	return {1.0, 1.0, 1.0};
 }
 

@@ -31,10 +31,6 @@ class Renderer: NSObject {
 		self.radius = radius
 		super.init()
 	}
-	func set_renderer(gpu: GPU,
-					  update_function: String){
-		gpu.set_compute_pipeline_state(function_name: update_function)
-	}
 	func set_center(center: (Float, Float)){
 		let (x, y) = center
 		self.center = [x, y]
@@ -47,7 +43,6 @@ class Renderer: NSObject {
 		let (delta_x, delta_y) = delta_v
 		self.delta_v = [delta_x, delta_y]
 	}
-	var frame: Int = 0
 	var isWhite: Bool = true
 	func set_background(isWhite: Bool){
 		self.isWhite = isWhite
@@ -62,6 +57,13 @@ class Renderer: NSObject {
 		self.width = width
 		self.height = height
 	}
+	enum Action: Equatable {
+		case start(Int)
+		case refresh(Int)
+		case loading(Int)
+	}
+	var action_buffer: [Action] = [.start(0), .loading(0)]
+	var isLoading: Bool = false
 }
 
 extension Renderer: MTKViewDelegate {
@@ -73,12 +75,136 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-//		if frame == 0 {
+		if isLoading {
+			action_buffer.removeAll(where: {$0 == .loading(0)})
+		}
+		let action: Action? = action_buffer.popLast()
+		action_buffer.removeAll(where: {$0 == action})
+		var new_action: Action?
+		switch action {
+		case .start(let frame):
+			new_action = start(frame: frame, command_buffer: command_buffer)
+		case .loading(let frame):
+			new_action = loading(frame: frame, command_buffer: command_buffer)
+		case .refresh(let frame):
+			new_action = refresh(frame: frame, command_buffer: command_buffer)
+		default:
 			update_window(command_buffer: command_buffer)
-//		}
+		}
+		guard
+			let a: Action = new_action
+		else{
+			draw(view: view, command_buffer: command_buffer)
+			command_buffer.commit()
+			return
+		}
+		action_buffer.append(a)
 		draw(view: view, command_buffer: command_buffer)
-		frame = (frame + 1) % 60
 		command_buffer.commit()
+	}
+	func loading(frame: Int, command_buffer: Command_buffer) -> Action? {
+		switch frame {
+		case 0:
+			let zero_color_function = "zero_color_function"
+			gpu.set_compute_pipeline_state(function_name: zero_color_function)
+			window.mesh.set_color(
+				command_buffer: command_buffer,
+				isWhite: &isWhite,
+				zero_color_function: zero_color_function,
+				compute_pipeline_state: gpu.get_compute_pipeline_state()
+			)
+			isLoading = true
+		default:
+			return nil
+		}
+		return nil
+	}
+	func refresh(frame: Int, command_buffer: Command_buffer) -> Action? {
+		switch frame {
+		case 0:
+			let vertices_function = "vertices_function"
+			gpu.set_compute_pipeline_state(function_name: vertices_function)
+			window.set_vertices(
+				command_buffer: command_buffer,
+				vertices_function: vertices_function,
+				compute_pipeline_state: gpu.get_compute_pipeline_state(),
+				center: (center[0], center[1]),
+				radius: radius,
+				width: width,
+				height: height
+			)
+		case 1:
+			let zero_function = "zero_function"
+			gpu.set_compute_pipeline_state(function_name: zero_function)
+			window.mesh.set_z_n(
+				command_buffer: command_buffer,
+				zero_function: zero_function,
+				compute_pipeline_state: gpu.get_compute_pipeline_state()
+			)
+		case 2:
+			let update_function =  "update_function"
+			gpu.set_compute_pipeline_state(function_name: update_function)
+			update_window(command_buffer: command_buffer)
+			isLoading = false
+			return nil
+		default:
+			return .refresh(frame+1)
+		}
+		return .refresh(frame+1)
+	}
+	func start(frame: Int, command_buffer: Command_buffer) -> Action? {
+		switch frame {
+		case 0:
+			let vertices_function = "vertices_function"
+			gpu.set_compute_pipeline_state(function_name: vertices_function)
+			window.set_vertices(
+				command_buffer: command_buffer,
+				vertices_function: vertices_function,
+				compute_pipeline_state: gpu.get_compute_pipeline_state(),
+				center: (center[0], center[1]),
+				radius: radius,
+				width: width,
+				height: height
+			)
+		case 1:
+			let triangles_function = "triangles_function"
+			gpu.set_compute_pipeline_state(function_name: triangles_function)
+			window.mesh.set_triangles(
+				command_buffer: command_buffer,
+				triangles_function: triangles_function,
+				compute_pipeline_state: gpu.get_compute_pipeline_state()
+			)
+		case 2:
+			let zero_function = "zero_function"
+			gpu.set_compute_pipeline_state(function_name: zero_function)
+			window.mesh.set_z_n(
+				command_buffer: command_buffer,
+				zero_function: zero_function,
+				compute_pipeline_state: gpu.get_compute_pipeline_state()
+			)
+		case 3:
+			let update_function =  "update_function"
+			gpu.set_compute_pipeline_state(function_name: update_function)
+			update_window(command_buffer: command_buffer)
+			isLoading = false
+			return nil
+		default:
+			return .start(frame+1)
+		}
+		return .start(frame+1)
+	}
+	func update_window(command_buffer: Command_buffer){
+		let compute_command_encoder: Compute_command_encoder
+		= Compute_command_encoder(command_buffer: command_buffer)
+		compute_command_encoder.set_input(arr: window.mesh.vertex_buffer)
+		compute_command_encoder.set_input(x: &isWhite)
+		compute_command_encoder.set_input(arr: window.mesh.z_n_buffer)
+		compute_command_encoder.set_input(arr: window.mesh.color_buffer)
+		compute_command_encoder.set_index_input(
+			thread: window.mesh.n_v,
+			compute_pipeline_state: gpu.get_compute_pipeline_state()
+		)
+		compute_command_encoder.end()
 	}
 	func draw(view: MTKView, command_buffer: Command_buffer){
 		let render_command_encoder: Render_command_encoder
@@ -94,18 +220,5 @@ extension Renderer: MTKViewDelegate {
 			render_pipeline_state: gpu.get_render_pipeline_state()
 		)
 		render_command_encoder.end()
-	}
-	func update_window(command_buffer: Command_buffer){
-		let compute_command_encoder: Compute_command_encoder
-		= Compute_command_encoder(command_buffer: command_buffer)
-		compute_command_encoder.set_input(arr: window.mesh.vertex_buffer)
-		compute_command_encoder.set_input(x: &isWhite)
-		compute_command_encoder.set_input(arr: window.mesh.z_n_buffer)
-		compute_command_encoder.set_input(arr: window.mesh.color_buffer)
-		compute_command_encoder.set_index_input(
-			thread: window.mesh.n_v,
-			compute_pipeline_state: gpu.get_compute_pipeline_state()
-		)
-		compute_command_encoder.end()
 	}
 }
