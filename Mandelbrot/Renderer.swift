@@ -3,6 +3,14 @@ import MetalKit
 class Renderer: NSObject {
 	let gpu: GPU
 	let command_queue: Command_queue
+	let vertices_function = "vertices_function"
+	let triangles_function = "triangles_function"
+	let zero_function = "zero_function"
+	let zero_color_function = "zero_color_function"
+	let update_function =  "update_function"
+	let vertex_main = "vertex_main"
+	let fragment_main = "fragment_main"
+	let n_vertex_buffer: Int = 6
 	var window: Window
 	var center: simd_float2
 	var radius: Float
@@ -11,11 +19,14 @@ class Renderer: NSObject {
 		 metalView: MTKView,
 		 window: Window,
 		 center: (Float, Float),
-		 radius: Float,
-		 update_function: String,
-		 vertex_main: String,
-		 fragment_main: String,
-		 n_vertex_buffer: Int) {
+		 radius: Float) {
+		gpu.compile(name: vertices_function)
+		gpu.compile(name: triangles_function)
+		gpu.compile(name: zero_function)
+		gpu.compile(name: zero_color_function)
+		gpu.compile(name: update_function)
+		gpu.compile(name: vertex_main)
+		gpu.compile(name: fragment_main)
 		gpu.set_compute_pipeline_state(function_name: update_function)
 		gpu.set_render_pipeline_state(
 			metalView: metalView,
@@ -105,7 +116,6 @@ extension Renderer: MTKViewDelegate {
 	func loading(frame: Int, command_buffer: Command_buffer) -> Action? {
 		switch frame {
 		case 0:
-			let zero_color_function = "zero_color_function"
 			gpu.set_compute_pipeline_state(function_name: zero_color_function)
 			window.mesh.set_color(
 				command_buffer: command_buffer,
@@ -122,7 +132,6 @@ extension Renderer: MTKViewDelegate {
 	func refresh(frame: Int, command_buffer: Command_buffer) -> Action? {
 		switch frame {
 		case 0:
-			let vertices_function = "vertices_function"
 			gpu.set_compute_pipeline_state(function_name: vertices_function)
 			window.set_vertices(
 				command_buffer: command_buffer,
@@ -134,7 +143,6 @@ extension Renderer: MTKViewDelegate {
 				height: height
 			)
 		case 1:
-			let zero_function = "zero_function"
 			gpu.set_compute_pipeline_state(function_name: zero_function)
 			window.mesh.set_z_n(
 				command_buffer: command_buffer,
@@ -142,7 +150,6 @@ extension Renderer: MTKViewDelegate {
 				compute_pipeline_state: gpu.get_compute_pipeline_state()
 			)
 		case 2:
-			let update_function =  "update_function"
 			gpu.set_compute_pipeline_state(function_name: update_function)
 			update_window(command_buffer: command_buffer)
 			isLoading = false
@@ -155,7 +162,6 @@ extension Renderer: MTKViewDelegate {
 	func start(frame: Int, command_buffer: Command_buffer) -> Action? {
 		switch frame {
 		case 0:
-			let vertices_function = "vertices_function"
 			gpu.set_compute_pipeline_state(function_name: vertices_function)
 			window.set_vertices(
 				command_buffer: command_buffer,
@@ -167,7 +173,6 @@ extension Renderer: MTKViewDelegate {
 				height: height
 			)
 		case 1:
-			let triangles_function = "triangles_function"
 			gpu.set_compute_pipeline_state(function_name: triangles_function)
 			window.mesh.set_triangles(
 				command_buffer: command_buffer,
@@ -175,7 +180,6 @@ extension Renderer: MTKViewDelegate {
 				compute_pipeline_state: gpu.get_compute_pipeline_state()
 			)
 		case 2:
-			let zero_function = "zero_function"
 			gpu.set_compute_pipeline_state(function_name: zero_function)
 			window.mesh.set_z_n(
 				command_buffer: command_buffer,
@@ -183,7 +187,6 @@ extension Renderer: MTKViewDelegate {
 				compute_pipeline_state: gpu.get_compute_pipeline_state()
 			)
 		case 3:
-			let update_function =  "update_function"
 			gpu.set_compute_pipeline_state(function_name: update_function)
 			update_window(command_buffer: command_buffer)
 			isLoading = false

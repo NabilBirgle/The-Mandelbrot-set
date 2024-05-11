@@ -119,7 +119,8 @@ class Render_command_encoder{
 		command_encoder?.setVertexBuffer(arr, offset: 0, index: input)
 		input += 1
 	}
-	func set_shader_input(window: Window, render_pipeline_state: MTLRenderPipelineState?){
+	func set_shader_input(window: Window, 
+						  render_pipeline_state: MTLRenderPipelineState?){
 		set_input(arr: window.mesh.vertex_buffer)
 		set_input(arr: window.mesh.color_buffer)
 		guard

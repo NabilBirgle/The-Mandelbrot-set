@@ -6,14 +6,11 @@ func pow(_ x: Int, _ y: Int) -> Int {
 
 struct Window {
 	let mesh: Mesh
-	init(gpu: GPU,
+	init(gpu: GPU, 
 		 center: (Float, Float),
 		 radius: Float,
 		 width: Float,
-		 height: Float,
-		 vertices_function: String,
-		 triangles_function: String,
-		 zero_function: String){
+		 height: Float){
 		let (x, y): (Float, Float) = center
 		let w = radius * width / min(width,height)
 		let h = radius * height / min(width, height)
