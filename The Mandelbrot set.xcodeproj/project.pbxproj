@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7C8B31F62BF258D50061AB97 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8B31F52BF258D50061AB97 /* Action.swift */; };
 		7C8C15942BE6820F009C82FE /* Mesh.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7C8C15932BE6820F009C82FE /* Mesh.metal */; };
 		7C91B0EC2BE28EA700493738 /* MandelbrotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91B0EB2BE28EA700493738 /* MandelbrotApp.swift */; };
 		7C91B0F02BE28EAA00493738 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7C91B0EF2BE28EAA00493738 /* Assets.xcassets */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7C8B31F52BF258D50061AB97 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		7C8C15932BE6820F009C82FE /* Mesh.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Mesh.metal; sourceTree = "<group>"; };
 		7C8C15CC2BE8F480009C82FE /* Cream_color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Cream_color.h; sourceTree = "<group>"; };
 		7C91B0E82BE28EA700493738 /* The Mandelbrot set.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "The Mandelbrot set.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -114,21 +116,22 @@
 		7C91B0EA2BE28EA700493738 /* Mandelbrot */ = {
 			isa = PBXGroup;
 			children = (
-				7C91B0EF2BE28EAA00493738 /* Assets.xcassets */,
+				7C91B0F12BE28EAA00493738 /* Mandelbrot.entitlements */,
+				7C8C15CC2BE8F480009C82FE /* Cream_color.h */,
+				7C9B645F2BE2A91E00588AFF /* Mandelbrot.metal */,
+				7C8C15932BE6820F009C82FE /* Mesh.metal */,
+				7C91B12E2BE28F1800493738 /* Shaders.metal */,
 				7C91B1342BE28F1900493738 /* ContentView.swift */,
 				7C91B12F2BE28F1800493738 /* GPU.swift */,
-				7C91B0F12BE28EAA00493738 /* Mandelbrot.entitlements */,
-				7C9B645F2BE2A91E00588AFF /* Mandelbrot.metal */,
 				7C91B0EB2BE28EA700493738 /* MandelbrotApp.swift */,
-				7C8C15932BE6820F009C82FE /* Mesh.metal */,
-				7C8C15CC2BE8F480009C82FE /* Cream_color.h */,
 				7C91B12D2BE28F1800493738 /* Mesh.swift */,
 				7C91B1312BE28F1900493738 /* MetalView.swift */,
-				7C91B0F22BE28EAA00493738 /* Preview Content */,
 				7C91B1302BE28F1900493738 /* Renderer.swift */,
-				7C91B12E2BE28F1800493738 /* Shaders.metal */,
+				7C8B31F52BF258D50061AB97 /* Action.swift */,
 				7C91B1332BE28F1900493738 /* VertexDescriptor.swift */,
 				7C91B1322BE28F1900493738 /* Window.swift */,
+				7C91B0EF2BE28EAA00493738 /* Assets.xcassets */,
+				7C91B0F22BE28EAA00493738 /* Preview Content */,
 			);
 			path = Mandelbrot;
 			sourceTree = "<group>";
@@ -289,6 +292,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7C91B1362BE28F1900493738 /* Shaders.metal in Sources */,
+				7C8B31F62BF258D50061AB97 /* Action.swift in Sources */,
 				7C91B1392BE28F1900493738 /* MetalView.swift in Sources */,
 				7C91B1352BE28F1900493738 /* Mesh.swift in Sources */,
 				7C8C15942BE6820F009C82FE /* Mesh.metal in Sources */,

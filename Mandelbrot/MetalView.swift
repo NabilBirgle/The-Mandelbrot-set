@@ -48,6 +48,8 @@ struct MetalView: View {
 	@State var window_height: CGFloat = 0
 	@State var center: (Float, Float) = (0, 0)
 	@State var zoom: Int = 0
+	let zoom_min: Int = 0
+	let zoom_max: Int = 30
 	func radius(zoom: Int) -> Float {
 		Float(2) / Float(pow(2, zoom))
 	}
@@ -97,7 +99,8 @@ struct MetalView: View {
 	}
 	func color_mandelbrot(){
 		renderer?.set_background(isWhite: isWhite)
-		renderer?.action_buffer.insert(.refresh(1), at: 0)
+		renderer?.action_buffer.insert(.refresh(0), at: 0)
+		renderer?.action_buffer.insert(.update_color(0), at: 0)
 	}
 	@State var hidden: Bool = false
 	func hide_button() -> Void {
@@ -132,7 +135,7 @@ struct MetalView: View {
 		.buttonStyle(.bordered)
 		.lineLimit(3, reservesSpace: true)
 		.alert(
-			"New coordinate",
+			"New coordinates",
 			isPresented: $show_alert,
 			actions: {
 				TextField("x", text: $input_x)
@@ -166,23 +169,27 @@ struct MetalView: View {
 		else {
 			return
 		}
-		renderer?.action_buffer.append(.loading(0))
+		if z < zoom_min || z > zoom_max {
+			return
+		}
 		center = (x, y)
 		zoom = z
 		let r = radius(zoom: zoom)
-		renderer?.set_center(center: center)
-		renderer?.set_radius(radius: r)
-		renderer?.action_buffer.insert(.refresh(0), at: 0)
+		renderer?.action_buffer.insert(
+			contentsOf: [.update_color(0), .refresh(0), .set_radius(r), .set_center(x, y), .loading(0)],
+			at: 0
+		)
 	}
 	func new_size(size: CGSize) -> Void {
-		renderer?.action_buffer.append(.loading(0))
-		window_height = size.height
 		window_width = size.width
-		renderer?.set_window(width: Float(window_width), height: Float(window_height))
-		renderer?.action_buffer.insert(.refresh(0), at: 0)
+		window_height = size.height
+		renderer?.action_buffer.insert(
+			contentsOf:
+				[.update_color(0), .refresh(0), .set_window(Float(window_width),Float(window_height)), .loading(0)],
+			at: 0
+		)
 	}
 	func new_mandelbrot() -> Void {
-		renderer?.action_buffer.append(.loading(0))
 		window = Window(
 			gpu: gpu,
 			center: center,
@@ -197,11 +204,11 @@ struct MetalView: View {
 			metalView: metalView,
 			window: w,
 			center: center,
-			radius: radius(zoom: zoom)
+			radius: radius(zoom: zoom),
+			width: Float(window_width),
+			height: Float(window_height)
 		)
 		metalView.delegate = renderer
-		renderer?.set_window(width: Float(window_width), height: Float(window_height))
-		renderer?.action_buffer.insert(.refresh(0), at: 0)
 	}
 	var drag_mandelbrot: some Gesture {
 		DragGesture()
@@ -213,15 +220,12 @@ struct MetalView: View {
 			Int(d.translation.width*100/window_width),
 			-Int(d.translation.height*100/window_height)
 		)
-		let r = radius(zoom: zoom)
-		let w = r * Float(window_width) / min(Float(window_width),Float(window_height))
-		let h = r * Float(window_height) / min(Float(window_width), Float(window_height))
-		renderer?.set_delta_v(
-			delta_v: (Float(delta_x)*w/50, Float(delta_y)*h/50)
-		)
+		let r: Float = radius(zoom: zoom)
+		let w: Float = r * Float(window_width) / min(Float(window_width),Float(window_height))
+		let h: Float = r * Float(window_height) / min(Float(window_width), Float(window_height))
+		renderer?.action_buffer.insert(.set_delta_v(Float(delta_x)*w/50, Float(delta_y)*h/50), at: 0)
 	}
 	func shift_mandelbrot(d: DragGesture.Value){
-		renderer?.action_buffer.append(.loading(0))
 		let (delta_x, delta_y): (Int, Int) = (
 			Int(d.translation.width*100/window_width),
 			-Int(d.translation.height*100/window_height)
@@ -233,42 +237,54 @@ struct MetalView: View {
 		x -= Float(delta_x) * w / 50
 		y -= Float(delta_y) * h / 50
 		center = (x, y)
-		renderer?.set_center(center: center)
-		renderer?.set_delta_v(delta_v: (0, 0))
-		renderer?.action_buffer.insert(.refresh(0), at: 0)
+		renderer?.action_buffer.insert(
+			contentsOf:
+				[.update_color(0), .refresh(0), .set_delta_v(0, 0), .set_center(x, y), .loading(0)],
+			at: 0
+		)
 	}
 	var magnification: some Gesture {
 		MagnifyGesture()
 			.onChanged({value in
-				let magnifyBy = value.magnification
-				renderer?.set_magnify(magnify: Float(magnifyBy))
+				let magnifyBy: Float = Float(value.magnification)
+				renderer?.action_buffer.insert(.set_magnify(magnifyBy), at: 0)
 			})
 			.onEnded({value in
-				renderer?.set_magnify(magnify: 1)
-				let magnifyBy = value.magnification
+				let magnifyBy: Float = Float(value.magnification)
 				if magnifyBy > 2 {
 					zoom_mandelbrot()
 				} else if magnifyBy < 0.5 {
 					unzoom_mandelbrot()
+				} else {
+					renderer?.action_buffer.insert(.set_magnify(1), at: 0)
 				}
 			})
 	}
 	func zoom_mandelbrot(){
-		renderer?.action_buffer.append(.loading(0))
-		zoom += 1
+		if zoom >= zoom_max{
+			zoom = zoom_max
+		} else {
+			zoom += 1
+		}
 		let r = radius(zoom: zoom)
-		renderer?.set_radius(radius: r)
-		renderer?.action_buffer.insert(.refresh(0), at: 0)
+		renderer?.action_buffer.insert(
+			contentsOf:
+				[.update_color(0), .refresh(0), .set_radius(r), .set_magnify(1), .loading(0)],
+			at: 0
+		)
 	}
 	func unzoom_mandelbrot(){
-		if zoom <= 0 {
-			return
+		if zoom <= zoom_min {
+			zoom = zoom_min
+		} else {
+			zoom -= 1
 		}
-		renderer?.action_buffer.append(.loading(0))
-		zoom -= 1
 		let r = radius(zoom: zoom)
-		renderer?.set_radius(radius: r)
-		renderer?.action_buffer.insert(.refresh(0), at: 0)
+		renderer?.action_buffer.insert(
+			contentsOf:
+				[.update_color(0), .refresh(0), .set_radius(r), .set_magnify(1), .loading(0)],
+			at: 0
+		)
 	}
 	func Clear_color() -> MTLClearColor {
 		isWhite ? White_color() : Cream_color()

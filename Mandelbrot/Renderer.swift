@@ -14,12 +14,16 @@ class Renderer: NSObject {
 	var window: Window
 	var center: simd_float2
 	var radius: Float
+	var width: Float
+	var height: Float
 	init(gpu: GPU,
 		 command_queue: Command_queue,
 		 metalView: MTKView,
 		 window: Window,
 		 center: (Float, Float),
-		 radius: Float) {
+		 radius: Float,
+		 width: Float,
+		 height: Float) {
 		gpu.compile(name: vertices_function)
 		gpu.compile(name: triangles_function)
 		gpu.compile(name: zero_function)
@@ -40,6 +44,8 @@ class Renderer: NSObject {
 		let (x, y) = center
 		self.center = [x, y]
 		self.radius = radius
+		self.width = width
+		self.height = height
 		super.init()
 	}
 	func set_center(center: (Float, Float)){
@@ -62,19 +68,8 @@ class Renderer: NSObject {
 	func set_magnify(magnify: Float){
 		self.magnify = magnify
 	}
-	var width: Float = 1
-	var height: Float = 1
-	func set_window(width: Float, height: Float){
-		self.width = width
-		self.height = height
-	}
-	enum Action: Equatable {
-		case start(Int)
-		case refresh(Int)
-		case loading(Int)
-	}
-	var action_buffer: [Action] = [.start(0), .loading(0)]
-	var isLoading: Bool = true
+	var action_buffer: [Action] = [.update_color(0), .start(0), .loading(0)]
+	var isLoading: Bool = false
 }
 
 extension Renderer: MTKViewDelegate {
@@ -86,7 +81,7 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-		let action: Action? = action_buffer.popLast()
+		let action: Action? = action_buffer.max(by: <)
 		action_buffer.removeAll(where: {$0 == action})
 		var new_action: Action?
 		switch action {
@@ -96,6 +91,19 @@ extension Renderer: MTKViewDelegate {
 			new_action = loading(frame: frame, command_buffer: command_buffer)
 		case .refresh(let frame):
 			new_action = refresh(frame: frame, command_buffer: command_buffer)
+		case .set_window(let width, let height):
+			self.width = width
+			self.height = height
+		case .set_radius(let radius):
+			self.radius = radius
+		case .set_center(let x, let y):
+			self.center = [x, y]
+		case .set_delta_v(let delta_x, let delta_y):
+			self.delta_v = [delta_x, delta_y]
+		case .set_magnify(let magnifyBy):
+			self.magnify = magnifyBy
+		case .update_color(let frame):
+			new_action = update_color(frame: frame, command_buffer: command_buffer)
 		default:
 			if !isLoading {
 				update_window(command_buffer: command_buffer)
@@ -139,10 +147,6 @@ extension Renderer: MTKViewDelegate {
 				zero_function: zero_function,
 				compute_pipeline_state: gpu.get_compute_pipeline_state()
 			)
-		case 3:
-			gpu.set_compute_pipeline_state(function_name: update_function)
-			update_window(command_buffer: command_buffer)
-			isLoading = false
 			return nil
 		default:
 			return .start(frame+1)
@@ -185,15 +189,22 @@ extension Renderer: MTKViewDelegate {
 				zero_function: zero_function,
 				compute_pipeline_state: gpu.get_compute_pipeline_state()
 			)
-		case 2:
-			gpu.set_compute_pipeline_state(function_name: update_function)
-			update_window(command_buffer: command_buffer)
-			isLoading = false
 			return nil
 		default:
 			return .refresh(frame+1)
 		}
 		return .refresh(frame+1)
+	}
+	func update_color(frame: Int, command_buffer: Command_buffer) -> Action? {
+		switch frame {
+		case 0:
+			gpu.set_compute_pipeline_state(function_name: update_function)
+			update_window(command_buffer: command_buffer)
+			isLoading = false
+		default:
+			return nil
+		}
+		return nil
 	}
 	func update_window(command_buffer: Command_buffer){
 		let compute_command_encoder: Compute_command_encoder
