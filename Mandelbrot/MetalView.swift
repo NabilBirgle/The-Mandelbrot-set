@@ -91,7 +91,7 @@ struct MetalView: View {
 				metalView.clearColor = Clear_color()
 				color_mandelbrot()
 			}) {
-				Label("Cream", systemImage: !isWhite ? "checkmark" : " ")
+				Label("Cream", systemImage: !isWhite ? "checkmark" : "")
 					.labelStyle(.titleAndIcon)
 			}
 		}.frame(width: 120)
@@ -99,7 +99,7 @@ struct MetalView: View {
 	}
 	func color_mandelbrot(){
 		renderer?.set_background(isWhite: isWhite)
-		renderer?.action_buffer.insert(.refresh(0), at: 0)
+		renderer?.action_buffer.insert(.refresh(1), at: 0)
 		renderer?.action_buffer.insert(.update_color(0), at: 0)
 	}
 	@State var hidden: Bool = false

@@ -1,4 +1,4 @@
-enum Action {
+enum Action: Equatable, Comparable {
 	case update_color(Int)
 	case refresh(Int)
 	case start(Int)
