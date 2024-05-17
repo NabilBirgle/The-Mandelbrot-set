@@ -1,11 +1,11 @@
-enum Action: Equatable, Comparable {
+enum Action {
 	case update_color(Int)
 	case refresh(Int)
 	case start(Int)
 	case set_window(Float, Float)
 	case set_radius(Float)
 	case set_center(Float, Float)
-	case set_delta_v(Float, Float)
+	case set_delta_v(Float, Float, ContinuousClock.Instant)
 	case set_magnify(Float)
 	case loading(Int)
 }
@@ -53,9 +53,9 @@ func ==(a: Action?, b: Action?) ->  Bool{
 		default:
 			return false
 		}
-	case .set_delta_v(_, _):
+	case .set_delta_v(_, _, _):
 		switch b {
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		default:
 			return false
@@ -88,7 +88,7 @@ func ==(a: Action?, b: Action?) ->  Bool{
 			return false
 		case .set_center(_, _):
 			return false
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return false
 		case .set_magnify(_):
 			return false
@@ -115,7 +115,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_center(_, _):
 			return true
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		case .set_magnify(_):
 			return true
@@ -138,7 +138,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_center(_, _):
 			return true
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		case .set_magnify(_):
 			return true
@@ -161,7 +161,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_center(_, _):
 			return true
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		case .set_magnify(_):
 			return true
@@ -184,7 +184,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_center(_, _):
 			return true
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		case .set_magnify(_):
 			return true
@@ -207,7 +207,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return false
 		case .set_center(_, _):
 			return true
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		case .set_magnify(_):
 			return true
@@ -230,7 +230,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return false
 		case .set_center(_, _):
 			return false
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		case .set_magnify(_):
 			return true
@@ -239,7 +239,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 		default:
 			return false
 		}
-	case .set_delta_v(_, _):
+	case .set_delta_v(_, _, let t_a):
 		switch b {
 		case .update_color(_):
 			return false
@@ -253,8 +253,8 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return false
 		case .set_center(_, _):
 			return false
-		case .set_delta_v(_, _):
-			return false
+		case .set_delta_v(_, _, let t_b):
+			return t_a<t_b
 		case .set_magnify(_):
 			return true
 		case .loading(_):
@@ -276,7 +276,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return false
 		case .set_center(_, _):
 			return false
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return false
 		case .set_magnify(_):
 			return false
@@ -299,7 +299,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return false
 		case .set_center(_, _):
 			return false
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return false
 		case .set_magnify(_):
 			return false
@@ -322,7 +322,7 @@ func <(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_center(_, _):
 			return true
-		case .set_delta_v(_, _):
+		case .set_delta_v(_, _, _):
 			return true
 		case .set_magnify(_):
 			return true
@@ -333,3 +333,249 @@ func <(a: Action?, b: Action?) ->  Bool{
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+//func <=(a: Action?, b: Action?) ->  Bool{
+//	switch a {
+//	case .update_color(let frame_a):
+//		switch b {
+//		case .update_color(let frame_b):
+//			return frame_a<=frame_b
+//		case .refresh(_):
+//			return true
+//		case .start(_):
+//			return true
+//		case .set_window(_, _):
+//			return true
+//		case .set_radius(_):
+//			return true
+//		case .set_center(_, _):
+//			return true
+//		case .set_delta_v(_, _, _):
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .refresh(let frame_a):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(let frame_b):
+//			return frame_a<=frame_b
+//		case .start(_):
+//			return true
+//		case .set_window(_, _):
+//			return true
+//		case .set_radius(_):
+//			return true
+//		case .set_center(_, _):
+//			return true
+//		case .set_delta_v(_, _, _):
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .start(let frame_a):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(_):
+//			return false
+//		case .start(let frame_b):
+//			return frame_a<=frame_b
+//		case .set_window(_, _):
+//			return true
+//		case .set_radius(_):
+//			return true
+//		case .set_center(_, _):
+//			return true
+//		case .set_delta_v(_, _, _):
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .set_window(_, _):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(_):
+//			return false
+//		case .start(_):
+//			return false
+//		case .set_window(_, _):
+//			return true
+//		case .set_radius(_):
+//			return true
+//		case .set_center(_, _):
+//			return true
+//		case .set_delta_v(_, _, _):
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .set_radius(_):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(_):
+//			return false
+//		case .start(_):
+//			return false
+//		case .set_window(_, _):
+//			return false
+//		case .set_radius(_):
+//			return true
+//		case .set_center(_, _):
+//			return true
+//		case .set_delta_v(_, _, _):
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .set_center(_, _):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(_):
+//			return false
+//		case .start(_):
+//			return false
+//		case .set_window(_, _):
+//			return false
+//		case .set_radius(_):
+//			return false
+//		case .set_center(_, _):
+////			return t_a<=t_b
+//			return true
+//		case .set_delta_v(_, _, _):
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .set_delta_v(_, _, _):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(_):
+//			return false
+//		case .start(_):
+//			return false
+//		case .set_window(_, _):
+//			return false
+//		case .set_radius(_):
+//			return false
+//		case .set_center(_, _):
+//			return false
+//		case .set_delta_v(_, _, _):
+////			return t_a<t_b
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .set_magnify(_):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(_):
+//			return false
+//		case .start(_):
+//			return false
+//		case .set_window(_, _):
+//			return false
+//		case .set_radius(_):
+//			return false
+//		case .set_center(_, _):
+//			return false
+//		case .set_delta_v(_, _, _):
+//			return false
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return false
+//		}
+//	case .loading(let frame_a):
+//		switch b {
+//		case .update_color(_):
+//			return false
+//		case .refresh(_):
+//			return false
+//		case .start(_):
+//			return false
+//		case .set_window(_, _):
+//			return false
+//		case .set_radius(_):
+//			return false
+//		case .set_center(_, _):
+//			return false
+//		case .set_delta_v(_, _, _):
+//			return false
+//		case .set_magnify(_):
+//			return false
+//		case .loading(let frame_b):
+//			return frame_a<=frame_b
+//		default:
+//			return false
+//		}
+//	default:
+//		switch b {
+//		case .update_color(_):
+//			return true
+//		case .refresh(_):
+//			return true
+//		case .start(_):
+//			return true
+//		case .set_window(_, _):
+//			return true
+//		case .set_radius(_):
+//			return true
+//		case .set_center(_, _):
+//			return true
+//		case .set_delta_v(_, _, _):
+//			return true
+//		case .set_magnify(_):
+//			return true
+//		case .loading(_):
+//			return true
+//		default:
+//			return true
+//		}
+//	}
+//}

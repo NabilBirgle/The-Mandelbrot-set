@@ -48,27 +48,13 @@ class Renderer: NSObject {
 		self.height = height
 		super.init()
 	}
-	func set_center(center: (Float, Float)){
-		let (x, y) = center
-		self.center = [x, y]
-	}
-	func set_radius(radius: Float){
-		self.radius = radius
-	}
 	var delta_v: simd_float2 = [0, 0]
-	func set_delta_v(delta_v: (Float, Float)){
-		let (delta_x, delta_y) = delta_v
-		self.delta_v = [delta_x, delta_y]
-	}
 	var isWhite: Bool = true
 	func set_background(isWhite: Bool){
 		self.isWhite = isWhite
 	}
 	var magnify: Float = 1
-	func set_magnify(magnify: Float){
-		self.magnify = magnify
-	}
-	var action_buffer: [Action] = [.update_color(0), .start(0), .loading(0)]
+	var action_buffer: [Action] = [.loading(0), .start(0), .update_color(0)]
 	var isLoading: Bool = false
 }
 
@@ -81,8 +67,16 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-		let action: Action? = action_buffer.max(by: <)
-		action_buffer.removeAll(where: {$0 == action})
+
+		let n: Int = action_buffer.count
+		let action: Action? = action_buffer[0..<n].max(by: <)
+		action_buffer[0..<n].removeAll(where: {($0 == action)})
+
+//		var action: Action?
+//		if action_buffer.count > 0 {
+//			action = action_buffer.removeFirst()
+//		}
+
 		var new_action: Action?
 		switch action {
 		case .start(let frame):
@@ -98,7 +92,7 @@ extension Renderer: MTKViewDelegate {
 			self.radius = radius
 		case .set_center(let x, let y):
 			self.center = [x, y]
-		case .set_delta_v(let delta_x, let delta_y):
+		case .set_delta_v(let delta_x, let delta_y, _):
 			self.delta_v = [delta_x, delta_y]
 		case .set_magnify(let magnifyBy):
 			self.magnify = magnifyBy
@@ -116,7 +110,7 @@ extension Renderer: MTKViewDelegate {
 			command_buffer.commit()
 			return
 		}
-		action_buffer.append(a)
+		action_buffer.insert(a, at: 0)
 		draw(view: view, command_buffer: command_buffer)
 		command_buffer.commit()
 	}
@@ -127,7 +121,7 @@ extension Renderer: MTKViewDelegate {
 			window.set_vertices(
 				command_buffer: command_buffer,
 				vertices_function: vertices_function,
-				compute_pipeline_state: gpu.get_compute_pipeline_state(),
+				gpu: gpu,
 				center: (center[0], center[1]),
 				radius: radius,
 				width: width,
@@ -135,17 +129,17 @@ extension Renderer: MTKViewDelegate {
 			)
 		case 1:
 			gpu.set_compute_pipeline_state(function_name: triangles_function)
-			window.mesh.set_triangles(
+			window.set_triangles(
 				command_buffer: command_buffer,
 				triangles_function: triangles_function,
-				compute_pipeline_state: gpu.get_compute_pipeline_state()
+				gpu: gpu
 			)
 		case 2:
 			gpu.set_compute_pipeline_state(function_name: zero_function)
-			window.mesh.set_z_n(
+			window.set_z_n(
 				command_buffer: command_buffer,
 				zero_function: zero_function,
-				compute_pipeline_state: gpu.get_compute_pipeline_state()
+				gpu: gpu
 			)
 			return nil
 		default:
@@ -157,11 +151,11 @@ extension Renderer: MTKViewDelegate {
 		switch frame {
 		case 0:
 			gpu.set_compute_pipeline_state(function_name: zero_color_function)
-			window.mesh.set_color(
+			window.set_color(
 				command_buffer: command_buffer,
 				isWhite: &isWhite,
 				zero_color_function: zero_color_function,
-				compute_pipeline_state: gpu.get_compute_pipeline_state()
+				gpu: gpu
 			)
 			isLoading = true
 		default:
@@ -176,7 +170,7 @@ extension Renderer: MTKViewDelegate {
 			window.set_vertices(
 				command_buffer: command_buffer,
 				vertices_function: vertices_function,
-				compute_pipeline_state: gpu.get_compute_pipeline_state(),
+				gpu: gpu,
 				center: (center[0], center[1]),
 				radius: radius,
 				width: width,
@@ -184,10 +178,10 @@ extension Renderer: MTKViewDelegate {
 			)
 		case 1:
 			gpu.set_compute_pipeline_state(function_name: zero_function)
-			window.mesh.set_z_n(
+			window.set_z_n(
 				command_buffer: command_buffer,
 				zero_function: zero_function,
-				compute_pipeline_state: gpu.get_compute_pipeline_state()
+				gpu: gpu
 			)
 			return nil
 		default:
@@ -209,13 +203,13 @@ extension Renderer: MTKViewDelegate {
 	func update_window(command_buffer: Command_buffer){
 		let compute_command_encoder: Compute_command_encoder
 		= Compute_command_encoder(command_buffer: command_buffer)
-		compute_command_encoder.set_input(arr: window.mesh.vertex_buffer)
+		compute_command_encoder.set_input(arr: window.get_vertices())
 		compute_command_encoder.set_input(x: &isWhite)
-		compute_command_encoder.set_input(arr: window.mesh.z_n_buffer)
-		compute_command_encoder.set_input(arr: window.mesh.color_buffer)
+		compute_command_encoder.set_input(arr: window.get_z_n())
+		compute_command_encoder.set_input(arr: window.get_color())
 		compute_command_encoder.set_index_input(
-			thread: window.mesh.n_v,
-			compute_pipeline_state: gpu.get_compute_pipeline_state()
+			thread: window.get_n_v(),
+			gpu: gpu
 		)
 		compute_command_encoder.end()
 	}
@@ -230,7 +224,7 @@ extension Renderer: MTKViewDelegate {
 		render_command_encoder.set_input(x: &height)
 		render_command_encoder.set_shader_input(
 			window: window,
-			render_pipeline_state: gpu.get_render_pipeline_state()
+			gpu: gpu
 		)
 		render_command_encoder.end()
 	}

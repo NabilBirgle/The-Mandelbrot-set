@@ -99,8 +99,7 @@ struct MetalView: View {
 	}
 	func color_mandelbrot(){
 		renderer?.set_background(isWhite: isWhite)
-		renderer?.action_buffer.insert(.refresh(1), at: 0)
-		renderer?.action_buffer.insert(.update_color(0), at: 0)
+		renderer?.action_buffer.append(contentsOf: [.refresh(1), .update_color(0)])
 	}
 	@State var hidden: Bool = false
 	func hide_button() -> Void {
@@ -175,18 +174,26 @@ struct MetalView: View {
 		center = (x, y)
 		zoom = z
 		let r = radius(zoom: zoom)
-		renderer?.action_buffer.insert(
-			contentsOf: [.update_color(0), .refresh(0), .set_radius(r), .set_center(x, y), .loading(0)],
-			at: 0
+		renderer?.action_buffer.append(
+			contentsOf: [
+				.loading(0),
+				.set_center(x, y),
+				.set_radius(r),
+				.refresh(0),
+				.update_color(0)
+			]
 		)
 	}
 	func new_size(size: CGSize) -> Void {
 		window_width = size.width
 		window_height = size.height
-		renderer?.action_buffer.insert(
-			contentsOf:
-				[.update_color(0), .refresh(0), .set_window(Float(window_width),Float(window_height)), .loading(0)],
-			at: 0
+		renderer?.action_buffer.append(
+			contentsOf: [
+				.loading(0),
+				.set_window(Float(window_width),Float(window_height)),
+				.refresh(0),
+				.update_color(0)
+			]
 		)
 	}
 	func new_mandelbrot() -> Void {
@@ -223,7 +230,9 @@ struct MetalView: View {
 		let r: Float = radius(zoom: zoom)
 		let w: Float = r * Float(window_width) / min(Float(window_width),Float(window_height))
 		let h: Float = r * Float(window_height) / min(Float(window_width), Float(window_height))
-		renderer?.action_buffer.insert(.set_delta_v(Float(delta_x)*w/50, Float(delta_y)*h/50), at: 0)
+		renderer?.action_buffer.append(.set_delta_v(Float(delta_x)*w/50,
+													Float(delta_y)*h/50,
+													ContinuousClock.now))
 	}
 	func shift_mandelbrot(d: DragGesture.Value){
 		let (delta_x, delta_y): (Int, Int) = (
@@ -237,17 +246,21 @@ struct MetalView: View {
 		x -= Float(delta_x) * w / 50
 		y -= Float(delta_y) * h / 50
 		center = (x, y)
-		renderer?.action_buffer.insert(
-			contentsOf:
-				[.update_color(0), .refresh(0), .set_delta_v(0, 0), .set_center(x, y), .loading(0)],
-			at: 0
+		renderer?.action_buffer.append(
+			contentsOf: [
+				.loading(0),
+				.set_center(x, y),
+				.set_delta_v(0, 0, ContinuousClock.now),
+				.refresh(0),
+				.update_color(0)
+			]
 		)
 	}
 	var magnification: some Gesture {
 		MagnifyGesture()
 			.onChanged({value in
 				let magnifyBy: Float = Float(value.magnification)
-				renderer?.action_buffer.insert(.set_magnify(magnifyBy), at: 0)
+				renderer?.action_buffer.append(.set_magnify(magnifyBy))
 			})
 			.onEnded({value in
 				let magnifyBy: Float = Float(value.magnification)
@@ -256,7 +269,7 @@ struct MetalView: View {
 				} else if magnifyBy < 0.5 {
 					unzoom_mandelbrot()
 				} else {
-					renderer?.action_buffer.insert(.set_magnify(1), at: 0)
+					renderer?.action_buffer.append(.set_magnify(1))
 				}
 			})
 	}
@@ -267,10 +280,14 @@ struct MetalView: View {
 			zoom += 1
 		}
 		let r = radius(zoom: zoom)
-		renderer?.action_buffer.insert(
-			contentsOf:
-				[.update_color(0), .refresh(0), .set_radius(r), .set_magnify(1), .loading(0)],
-			at: 0
+		renderer?.action_buffer.append(
+			contentsOf: [
+				.loading(0),
+				.set_magnify(1),
+				.set_radius(r),
+				.refresh(0),
+				.update_color(0)
+			]
 		)
 	}
 	func unzoom_mandelbrot(){
@@ -280,10 +297,14 @@ struct MetalView: View {
 			zoom -= 1
 		}
 		let r = radius(zoom: zoom)
-		renderer?.action_buffer.insert(
-			contentsOf:
-				[.update_color(0), .refresh(0), .set_radius(r), .set_magnify(1), .loading(0)],
-			at: 0
+		renderer?.action_buffer.append(
+			contentsOf: [
+				.loading(0),
+				.set_magnify(1),
+				.set_radius(r),
+				.refresh(0),
+				.update_color(0)
+			]
 		)
 	}
 	func Clear_color() -> MTLClearColor {

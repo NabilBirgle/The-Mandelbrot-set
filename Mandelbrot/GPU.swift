@@ -120,11 +120,11 @@ class Render_command_encoder{
 		input += 1
 	}
 	func set_shader_input(window: Window, 
-						  render_pipeline_state: MTLRenderPipelineState?){
-		set_input(arr: window.mesh.vertex_buffer)
-		set_input(arr: window.mesh.color_buffer)
+						  gpu: GPU){
+		set_input(arr: window.get_vertices())
+		set_input(arr: window.get_color())
 		guard
-			let pipeline_state: MTLRenderPipelineState = render_pipeline_state
+			let pipeline_state: MTLRenderPipelineState = gpu.get_render_pipeline_state()
 		else {
 			command_encoder = nil
 			return
@@ -132,9 +132,9 @@ class Render_command_encoder{
 		command_encoder?.setRenderPipelineState(pipeline_state)
 		command_encoder?.drawIndexedPrimitives(
 			type: .triangle,
-			indexCount: window.mesh.n_t,
+			indexCount: window.get_n_t(),
 			indexType: .uint32,
-			indexBuffer: window.mesh.triangles_buffer,
+			indexBuffer: window.get_triangles(),
 			indexBufferOffset: 0)
 	}
 	func end(){
@@ -176,9 +176,9 @@ class Compute_command_encoder{
 		command_encoder?.setBuffer(arr, offset: 0, index: input)
 		input += 1
 	}
-	func set_index_input(thread: Int, compute_pipeline_state: MTLComputePipelineState?){
+	func set_index_input(thread: Int, gpu: GPU){
 		guard
-			let pipeline_state: MTLComputePipelineState = compute_pipeline_state
+			let pipeline_state: MTLComputePipelineState = gpu.get_compute_pipeline_state()
 		else {
 			command_encoder = nil
 			return
