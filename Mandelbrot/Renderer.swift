@@ -67,7 +67,6 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-//		let n: Int = action_buffer.count
 		let action: Action? = action_buffer.max(by: <=)
 		action_buffer.removeAll(where: {($0 == action)})
 		var new_action: Action?
