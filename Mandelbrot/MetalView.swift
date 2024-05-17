@@ -231,8 +231,7 @@ struct MetalView: View {
 		let w: Float = r * Float(window_width) / min(Float(window_width),Float(window_height))
 		let h: Float = r * Float(window_height) / min(Float(window_width), Float(window_height))
 		renderer?.action_buffer.append(.set_delta_v(Float(delta_x)*w/50,
-													Float(delta_y)*h/50,
-													ContinuousClock.now))
+													Float(delta_y)*h/50))
 	}
 	func shift_mandelbrot(d: DragGesture.Value){
 		let (delta_x, delta_y): (Int, Int) = (
@@ -250,7 +249,7 @@ struct MetalView: View {
 			contentsOf: [
 				.loading(0),
 				.set_center(x, y),
-				.set_delta_v(0, 0, ContinuousClock.now),
+				.set_delta_v(0, 0),
 				.refresh(0),
 				.update_color(0)
 			]

@@ -67,16 +67,9 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-
 		let n: Int = action_buffer.count
-		let action: Action? = action_buffer[0..<n].max(by: <)
+		let action: Action? = action_buffer[0..<n].max(by: <=)
 		action_buffer[0..<n].removeAll(where: {($0 == action)})
-
-//		var action: Action?
-//		if action_buffer.count > 0 {
-//			action = action_buffer.removeFirst()
-//		}
-
 		var new_action: Action?
 		switch action {
 		case .start(let frame):
@@ -92,7 +85,7 @@ extension Renderer: MTKViewDelegate {
 			self.radius = radius
 		case .set_center(let x, let y):
 			self.center = [x, y]
-		case .set_delta_v(let delta_x, let delta_y, _):
+		case .set_delta_v(let delta_x, let delta_y):
 			self.delta_v = [delta_x, delta_y]
 		case .set_magnify(let magnifyBy):
 			self.magnify = magnifyBy
