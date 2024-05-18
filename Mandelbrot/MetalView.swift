@@ -97,9 +97,14 @@ struct MetalView: View {
 		}.frame(width: 120)
 			.buttonStyle(.bordered)
 	}
-	func color_mandelbrot(){
-		renderer?.set_background(isWhite: isWhite)
-		renderer?.action_buffer.append(contentsOf: [.refresh(1), .update_color(0)])
+	func color_mandelbrot() {
+		renderer?.action_buffer.append(
+			contentsOf: [
+				.set_background(isWhite),
+				.refresh(1),
+				.update_color(0)
+			]
+		)
 	}
 	@State var hidden: Bool = false
 	func hide_button() -> Void {
@@ -141,6 +146,18 @@ struct MetalView: View {
 				TextField("y", text: $input_y)
 				TextField("zoom", text: $input_zoom)
 				Button("Ok") {
+					guard
+						let x: Float = Float(input_x),
+						let y: Float = Float(input_y),
+						let z: Int = Int(input_zoom)
+					else {
+						return
+					}
+					if z < zoom_min || z > zoom_max {
+						return
+					}
+					center = (x, y)
+					zoom = z
 					update_mandelbrot()
 				}
 				Button("Cancel", role: .cancel) {
@@ -161,18 +178,7 @@ struct MetalView: View {
 		}.buttonStyle(.bordered)
 	}
 	func update_mandelbrot(){
-		guard
-			let x: Float = Float(input_x),
-			let y: Float = Float(input_y),
-			let z: Int = Int(input_zoom)
-		else {
-			return
-		}
-		if z < zoom_min || z > zoom_max {
-			return
-		}
-		center = (x, y)
-		zoom = z
+		let (x, y) = center
 		let r = radius(zoom: zoom)
 		renderer?.action_buffer.append(
 			contentsOf: [

@@ -67,8 +67,9 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-		let action: Action? = action_buffer.max(by: <=)
-		action_buffer.removeAll(where: {($0 == action)})
+		let n: Int = action_buffer.count
+		let action: Action? = action_buffer[0..<n].max(by: <=)
+		action_buffer[0..<n].removeAll(where: {($0 == action)})
 		var new_action: Action?
 		switch action {
 		case .start(let frame):
@@ -88,6 +89,8 @@ extension Renderer: MTKViewDelegate {
 			self.delta_v = [delta_x, delta_y]
 		case .set_magnify(let magnifyBy):
 			self.magnify = magnifyBy
+		case .set_background(let isWhite):
+			self.isWhite = isWhite
 		case .update_color(let frame):
 			new_action = update_color(frame: frame, command_buffer: command_buffer)
 		default:

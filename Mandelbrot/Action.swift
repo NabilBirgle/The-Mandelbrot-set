@@ -7,6 +7,7 @@ enum Action {
 	case set_center(Float, Float)
 	case set_delta_v(Float, Float)
 	case set_magnify(Float)
+	case set_background(Bool)
 	case loading(Int)
 }
 func ==(a: Action?, b: Action?) ->  Bool{
@@ -67,6 +68,13 @@ func ==(a: Action?, b: Action?) ->  Bool{
 		default:
 			return false
 		}
+	case .set_background(_):
+		switch b {
+		case .set_background(_):
+			return true
+		default:
+			return false
+		}
 	case .loading(let frame_a):
 		switch b {
 		case .loading(let frame_b):
@@ -91,6 +99,8 @@ func ==(a: Action?, b: Action?) ->  Bool{
 		case .set_delta_v(_, _):
 			return false
 		case .set_magnify(_):
+			return false
+		case .set_background(_):
 			return false
 		case .loading(_):
 			return false
@@ -119,6 +129,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_magnify(_):
 			return true
+		case .set_background(_):
+			return true
 		case .loading(_):
 			return true
 		default:
@@ -141,6 +153,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 		case .set_delta_v(_, _):
 			return true
 		case .set_magnify(_):
+			return true
+		case .set_background(_):
 			return true
 		case .loading(_):
 			return true
@@ -165,6 +179,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_magnify(_):
 			return true
+		case .set_background(_):
+			return true
 		case .loading(_):
 			return true
 		default:
@@ -187,6 +203,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 		case .set_delta_v(_, _):
 			return true
 		case .set_magnify(_):
+			return true
+		case .set_background(_):
 			return true
 		case .loading(_):
 			return true
@@ -211,6 +229,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_magnify(_):
 			return true
+		case .set_background(_):
+			return true
 		case .loading(_):
 			return true
 		default:
@@ -233,6 +253,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 		case .set_delta_v(_, _):
 			return true
 		case .set_magnify(_):
+			return true
+		case .set_background(_):
 			return true
 		case .loading(_):
 			return true
@@ -257,6 +279,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 			return true
 		case .set_magnify(_):
 			return true
+		case .set_background(_):
+			return true
 		case .loading(_):
 			return true
 		default:
@@ -279,6 +303,33 @@ func <=(a: Action?, b: Action?) ->  Bool{
 		case .set_delta_v(_, _):
 			return false
 		case .set_magnify(_):
+			return true
+		case .set_background(_):
+			return true
+		case .loading(_):
+			return true
+		default:
+			return false
+		}
+	case .set_background(_):
+		switch b {
+		case .update_color(_):
+			return false
+		case .refresh(_):
+			return false
+		case .start(_):
+			return false
+		case .set_window(_, _):
+			return false
+		case .set_radius(_):
+			return false
+		case .set_center(_, _):
+			return false
+		case .set_delta_v(_, _):
+			return false
+		case .set_magnify(_):
+			return false
+		case .set_background(_):
 			return true
 		case .loading(_):
 			return true
@@ -303,6 +354,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 			return false
 		case .set_magnify(_):
 			return false
+		case .set_background(_):
+			return false
 		case .loading(let frame_b):
 			return frame_a<=frame_b
 		default:
@@ -325,6 +378,8 @@ func <=(a: Action?, b: Action?) ->  Bool{
 		case .set_delta_v(_, _):
 			return true
 		case .set_magnify(_):
+			return true
+		case .set_background(_):
 			return true
 		case .loading(_):
 			return true
