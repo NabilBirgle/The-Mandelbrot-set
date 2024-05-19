@@ -1,21 +1,22 @@
 import MetalKit
 
 class Renderer: NSObject {
-	let gpu: GPU
-	let command_queue: Command_queue
-	let vertices_function = "vertices_function"
-	let triangles_function = "triangles_function"
-	let zero_function = "zero_function"
-	let zero_color_function = "zero_color_function"
-	let update_function =  "update_function"
-	let vertex_main = "vertex_main"
-	let fragment_main = "fragment_main"
-	let n_vertex_buffer: Int = 6
-	var window: Window
-	var center: simd_float2
-	var radius: Float
-	var width: Float
-	var height: Float
+	private let gpu: GPU
+	private let command_queue: Command_queue
+	private let vertices_function = "vertices_function"
+	private let triangles_function = "triangles_function"
+	private let zero_function = "zero_function"
+	private let zero_color_function = "zero_color_function"
+	private let update_function =  "update_function"
+	private let vertex_main = "vertex_main"
+	private let fragment_main = "fragment_main"
+	/// n_vertex_buffer doit être modifier en fonction du nombre de paramètre de la fonction vertex dans Shaders.metal. Si sa valeur est incorrect, le Preview bug et il est possible que Xcode plante et jusqu'à forcer la session à se verrouiller. (2024)
+	private let n_vertex_buffer: Int = 6
+	private var window: Window
+	private var center: simd_float2
+	private var radius: Float
+	private var width: Float
+	private var height: Float
 	init(gpu: GPU,
 		 command_queue: Command_queue,
 		 metalView: MTKView,
@@ -48,11 +49,17 @@ class Renderer: NSObject {
 		self.height = height
 		super.init()
 	}
-	var delta_v: simd_float2 = [0, 0]
-	var isWhite: Bool = true
-	var magnify: Float = 1
-	var action_buffer: [Action] = [.loading(0), .start(0), .update_color(0)]
-	var isLoading: Bool = false
+	private var delta_v: simd_float2 = [0, 0]
+	private var isWhite: Bool = true
+	private var magnify: Float = 1
+	private var action_buffer: [Action] = [.loading(0), .start(0), .update_color(0)]
+	func add_setting(actions: [Action]){
+		action_buffer.append(contentsOf: actions)
+	}	
+	func add_setting(action: Action){
+		action_buffer.append(action)
+	}
+	private var isLoading: Bool = false
 }
 
 extension Renderer: MTKViewDelegate {

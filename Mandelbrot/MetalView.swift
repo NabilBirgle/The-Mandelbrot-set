@@ -98,8 +98,8 @@ struct MetalView: View {
 			.buttonStyle(.bordered)
 	}
 	func color_mandelbrot() {
-		renderer?.action_buffer.append(
-			contentsOf: [
+		renderer?.add_setting(
+			actions: [
 				.set_background(isWhite),
 				.refresh(1),
 				.update_color(0)
@@ -180,8 +180,8 @@ struct MetalView: View {
 	func update_mandelbrot(){
 		let (x, y) = center
 		let r = radius(zoom: zoom)
-		renderer?.action_buffer.append(
-			contentsOf: [
+		renderer?.add_setting(
+			actions: [
 				.loading(0),
 				.set_center(x, y),
 				.set_radius(r),
@@ -193,8 +193,8 @@ struct MetalView: View {
 	func new_size(size: CGSize) -> Void {
 		window_width = size.width
 		window_height = size.height
-		renderer?.action_buffer.append(
-			contentsOf: [
+		renderer?.add_setting(
+			actions: [
 				.loading(0),
 				.set_window(Float(window_width),Float(window_height)),
 				.refresh(0),
@@ -236,8 +236,8 @@ struct MetalView: View {
 		let r: Float = radius(zoom: zoom)
 		let w: Float = r * Float(window_width) / min(Float(window_width),Float(window_height))
 		let h: Float = r * Float(window_height) / min(Float(window_width), Float(window_height))
-		renderer?.action_buffer.append(.set_delta_v(Float(delta_x)*w/50,
-													Float(delta_y)*h/50))
+		renderer?.add_setting(action: .set_delta_v(Float(delta_x)*w/50,
+												   Float(delta_y)*h/50))
 	}
 	func shift_mandelbrot(d: DragGesture.Value){
 		let (delta_x, delta_y): (Int, Int) = (
@@ -251,8 +251,8 @@ struct MetalView: View {
 		x -= Float(delta_x) * w / 50
 		y -= Float(delta_y) * h / 50
 		center = (x, y)
-		renderer?.action_buffer.append(
-			contentsOf: [
+		renderer?.add_setting(
+			actions: [
 				.loading(0),
 				.set_center(x, y),
 				.set_delta_v(0, 0),
@@ -265,7 +265,7 @@ struct MetalView: View {
 		MagnifyGesture()
 			.onChanged({value in
 				let magnifyBy: Float = Float(value.magnification)
-				renderer?.action_buffer.append(.set_magnify(magnifyBy))
+				renderer?.add_setting(action: .set_magnify(magnifyBy))
 			})
 			.onEnded({value in
 				let magnifyBy: Float = Float(value.magnification)
@@ -274,7 +274,7 @@ struct MetalView: View {
 				} else if magnifyBy < 0.5 {
 					unzoom_mandelbrot()
 				} else {
-					renderer?.action_buffer.append(.set_magnify(1))
+					renderer?.add_setting(action: .set_magnify(1))
 				}
 			})
 	}
@@ -285,8 +285,8 @@ struct MetalView: View {
 			zoom += 1
 		}
 		let r = radius(zoom: zoom)
-		renderer?.action_buffer.append(
-			contentsOf: [
+		renderer?.add_setting(
+			actions: [
 				.loading(0),
 				.set_magnify(1),
 				.set_radius(r),
@@ -302,8 +302,8 @@ struct MetalView: View {
 			zoom -= 1
 		}
 		let r = radius(zoom: zoom)
-		renderer?.action_buffer.append(
-			contentsOf: [
+		renderer?.add_setting(
+			actions: [
 				.loading(0),
 				.set_magnify(1),
 				.set_radius(r),
