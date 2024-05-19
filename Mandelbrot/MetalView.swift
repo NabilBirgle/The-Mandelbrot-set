@@ -278,7 +278,7 @@ struct MetalView: View {
 				}
 			})
 	}
-	func zoom_mandelbrot(){
+	func zoom_mandelbrot() {
 		if zoom >= zoom_max{
 			zoom = zoom_max
 		} else {

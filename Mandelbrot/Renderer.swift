@@ -50,9 +50,6 @@ class Renderer: NSObject {
 	}
 	var delta_v: simd_float2 = [0, 0]
 	var isWhite: Bool = true
-	func set_background(isWhite: Bool){
-		self.isWhite = isWhite
-	}
 	var magnify: Float = 1
 	var action_buffer: [Action] = [.loading(0), .start(0), .update_color(0)]
 	var isLoading: Bool = false
