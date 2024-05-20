@@ -11,6 +11,7 @@ class Mesh {
 	private var triangles_buffer: MTLBuffer
 	private var z_n_buffer: MTLBuffer
 	private var color_buffer: MTLBuffer
+	/// Pour **n > pow(2, 10)** une latence peut être observée et l'allocation mémoire peut échouer.
 	init(n: UInt32, v0: simd_float2, delta_v: simd_float2, gpu: GPU){
 		self.n = n
 		self.n_v = Int((n+1)*(n+1) + n*n)
