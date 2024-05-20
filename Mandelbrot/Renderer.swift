@@ -10,7 +10,7 @@ class Renderer: NSObject {
 	private let update_function =  "update_function"
 	private let vertex_main = "vertex_main"
 	private let fragment_main = "fragment_main"
-	/// n_vertex_buffer doit être modifier en fonction du nombre de paramètre de la fonction vertex dans Shaders.metal. Si sa valeur est incorrect, le Preview bug et il est possible que Xcode plante et jusqu'à forcer la session à se verrouiller. (2024)
+	/// n_vertex_buffer doit être modifier en fonction du nombre de paramètre de la fonction vertex dans Shaders.metal. Si sa valeur est incorrect, le Preview bug et il est possible que Xcode plante et jusqu'à forcer la session à se verrouiller. (Xcode Version 15.4, 2024)
 	private let n_vertex_buffer: Int = 6
 	private var window: Window
 	private var center: simd_float2

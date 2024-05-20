@@ -34,8 +34,8 @@ import SwiftUI
 import MetalKit
 
 struct MetalView: View {
-	let gpu: GPU
-	let command_queue: Command_queue
+	private let gpu: GPU
+	private let command_queue: Command_queue
 	@State private var metalView: MTKView
 	init(){
 		self.gpu = GPU()
@@ -44,16 +44,16 @@ struct MetalView: View {
 		metalView.device = gpu.get_device()
 		metalView.clearColor = Clear_color()
 	}
-	@State var window_width: CGFloat = 0
-	@State var window_height: CGFloat = 0
-	@State var center: (Float, Float) = (0, 0)
-	@State var zoom: Int = 0
-	let zoom_min: Int = 0
-	let zoom_max: Int = 30
+	@State private var window_width: CGFloat = 0
+	@State private var window_height: CGFloat = 0
+	@State private var center: (Float, Float) = (0, 0)
+	@State private var zoom: Int = 0
+	private let zoom_min: Int = 0
+	private let zoom_max: Int = 30
 	func radius(zoom: Int) -> Float {
 		Float(2) / Float(pow(2, zoom))
 	}
-	@State var window: Window?
+	@State private var window: Window?
 	@State private var renderer: Renderer?
 	var body: some View {
 		ZStack(alignment: .topLeading){
@@ -76,7 +76,7 @@ struct MetalView: View {
 		}
 	}
 	@State private var isWhite: Bool = true
-	var background_corner: some View {
+	private var background_corner: some View {
 		Menu("Background"){
 			Button(action: {
 				isWhite = true
@@ -106,7 +106,7 @@ struct MetalView: View {
 			]
 		)
 	}
-	@State var hidden: Bool = false
+	@State private var hidden: Bool = false
 	func hide_button() -> Void {
 		hidden = true
 	}
@@ -123,7 +123,7 @@ struct MetalView: View {
 	@State private var input_y: String = ""
 	@State private var input_zoom: String = ""
 	@State private var show_alert: Bool = false
-	var center_corner: some View {
+	private var center_corner: some View {
 		Button(action: {
 			let (x, y): (Float, Float) = center
 			let zoom: Int = zoom
@@ -165,7 +165,7 @@ struct MetalView: View {
 			}
 		)
 	}
-	var zoom_corner: some View {
+	private var zoom_corner: some View {
 		VStack {
 			Button(action: zoom_mandelbrot){
 				Label("+", systemImage: "")
@@ -223,7 +223,7 @@ struct MetalView: View {
 		)
 		metalView.delegate = renderer
 	}
-	var drag_mandelbrot: some Gesture {
+	private var drag_mandelbrot: some Gesture {
 		DragGesture()
 			.onChanged(dragging_mandelbrot)
 			.onEnded(shift_mandelbrot)
@@ -261,7 +261,7 @@ struct MetalView: View {
 			]
 		)
 	}
-	var magnification: some Gesture {
+	private var magnification: some Gesture {
 		MagnifyGesture()
 			.onChanged({value in
 				let magnifyBy: Float = Float(value.magnification)
