@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7C643CEC2BFCE1DB00F78F73 /* pow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C643CEB2BFCE1DB00F78F73 /* pow.swift */; };
 		7C8B31F62BF258D50061AB97 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8B31F52BF258D50061AB97 /* Action.swift */; };
 		7C8C15942BE6820F009C82FE /* Mesh.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7C8C15932BE6820F009C82FE /* Mesh.metal */; };
 		7C91B0EC2BE28EA700493738 /* MandelbrotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91B0EB2BE28EA700493738 /* MandelbrotApp.swift */; };
@@ -44,6 +45,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7C643CEB2BFCE1DB00F78F73 /* pow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pow.swift; sourceTree = "<group>"; };
 		7C8B31F52BF258D50061AB97 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		7C8C15932BE6820F009C82FE /* Mesh.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Mesh.metal; sourceTree = "<group>"; };
 		7C91B0E82BE28EA700493738 /* The Mandelbrot set.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "The Mandelbrot set.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -128,6 +130,7 @@
 				7C8B31F52BF258D50061AB97 /* Action.swift */,
 				7C91B1332BE28F1900493738 /* VertexDescriptor.swift */,
 				7C91B1322BE28F1900493738 /* Window.swift */,
+				7C643CEB2BFCE1DB00F78F73 /* pow.swift */,
 				7C91B0EF2BE28EAA00493738 /* Assets.xcassets */,
 				7C91B0F22BE28EAA00493738 /* Preview Content */,
 			);
@@ -295,6 +298,7 @@
 				7C91B1352BE28F1900493738 /* Mesh.swift in Sources */,
 				7C8C15942BE6820F009C82FE /* Mesh.metal in Sources */,
 				7C91B13B2BE28F1900493738 /* VertexDescriptor.swift in Sources */,
+				7C643CEC2BFCE1DB00F78F73 /* pow.swift in Sources */,
 				7C9B64602BE2A91E00588AFF /* Mandelbrot.metal in Sources */,
 				7C91B0EC2BE28EA700493738 /* MandelbrotApp.swift in Sources */,
 				7C91B13C2BE28F1900493738 /* ContentView.swift in Sources */,
