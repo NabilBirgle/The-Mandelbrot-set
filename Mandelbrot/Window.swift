@@ -17,7 +17,6 @@ struct Window {
 		self.mesh = mesh
 	}
 	func set_vertices(command_buffer: Command_buffer,
-					  vertices_function: String,
 					  gpu: GPU,
 					  center: (Float, Float),
 					  radius: Float,
@@ -29,30 +28,23 @@ struct Window {
 		mesh.set_v0(x: x-w, y: y-h)
 		mesh.set_delta_v(delta_x: 2*w, delta_y: 2*h)
 		mesh.set_vertices(command_buffer: command_buffer,
-						  vertices_function: vertices_function, 
 						  gpu: gpu)
 	}
 	func set_triangles(command_buffer: Command_buffer,
-					   triangles_function: String,
 					   gpu: GPU){
 		mesh.set_triangles(command_buffer: command_buffer,
-						   triangles_function: triangles_function,
 						   gpu: gpu)
 	}
 	func set_z_n(command_buffer: Command_buffer,
-				 zero_function: String,
 				 gpu: GPU){
 		mesh.set_z_n(command_buffer: command_buffer,
-					 zero_function: zero_function,
 					 gpu: gpu)
 	}
 	func set_color(command_buffer: Command_buffer,
 				   isWhite: inout Bool,
-				   zero_color_function: String,
 				   gpu: GPU){
 		mesh.set_color(command_buffer: command_buffer,
 					   isWhite: &isWhite,
-					   zero_color_function: zero_color_function,
 					   gpu: gpu)
 	}
 	func get_n_v() -> Int {

@@ -119,7 +119,6 @@ extension Renderer: MTKViewDelegate {
 			gpu.set_compute_pipeline_state(function_name: vertices_function)
 			window.set_vertices(
 				command_buffer: command_buffer,
-				vertices_function: vertices_function,
 				gpu: gpu,
 				center: (center[0], center[1]),
 				radius: radius,
@@ -130,14 +129,12 @@ extension Renderer: MTKViewDelegate {
 			gpu.set_compute_pipeline_state(function_name: triangles_function)
 			window.set_triangles(
 				command_buffer: command_buffer,
-				triangles_function: triangles_function,
 				gpu: gpu
 			)
 		case 2:
 			gpu.set_compute_pipeline_state(function_name: zero_function)
 			window.set_z_n(
 				command_buffer: command_buffer,
-				zero_function: zero_function,
 				gpu: gpu
 			)
 			return nil
@@ -153,7 +150,6 @@ extension Renderer: MTKViewDelegate {
 			window.set_color(
 				command_buffer: command_buffer,
 				isWhite: &isWhite,
-				zero_color_function: zero_color_function,
 				gpu: gpu
 			)
 			isLoading = true
@@ -168,7 +164,6 @@ extension Renderer: MTKViewDelegate {
 			gpu.set_compute_pipeline_state(function_name: vertices_function)
 			window.set_vertices(
 				command_buffer: command_buffer,
-				vertices_function: vertices_function,
 				gpu: gpu,
 				center: (center[0], center[1]),
 				radius: radius,
@@ -179,7 +174,6 @@ extension Renderer: MTKViewDelegate {
 			gpu.set_compute_pipeline_state(function_name: zero_function)
 			window.set_z_n(
 				command_buffer: command_buffer,
-				zero_function: zero_function,
 				gpu: gpu
 			)
 			return nil
