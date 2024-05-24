@@ -45,8 +45,7 @@ class Mesh {
 	func set_delta_v(delta_x: Float, delta_y: Float){
 		delta_v = [delta_x, delta_y]
 	}
-	func set_vertices(command_buffer: Command_buffer,
-					  gpu: GPU){
+	func set_vertices(gpu: GPU, command_buffer: Command_buffer){
 		let compute_command_encoder: Compute_command_encoder
 		= Compute_command_encoder(command_buffer: command_buffer)
 		compute_command_encoder.set_input(x: &n)
@@ -59,8 +58,7 @@ class Mesh {
 		)
 		compute_command_encoder.end()
 	}
-	func set_triangles(command_buffer: Command_buffer,
-					   gpu: GPU){
+	func set_triangles(gpu: GPU, command_buffer: Command_buffer){
 		let compute_command_encoder: Compute_command_encoder
 		= Compute_command_encoder(command_buffer: command_buffer)
 		compute_command_encoder.set_input(x: &n)
@@ -71,8 +69,7 @@ class Mesh {
 		)
 		compute_command_encoder.end()
 	}
-	func set_z_n(command_buffer: Command_buffer,
-				 gpu: GPU){
+	func set_z_n(gpu: GPU, command_buffer: Command_buffer){
 		let compute_command_encoder: Compute_command_encoder
 		= Compute_command_encoder(command_buffer: command_buffer)
 		compute_command_encoder.set_input(arr: z_n_buffer)
@@ -82,9 +79,9 @@ class Mesh {
 		)
 		compute_command_encoder.end()
 	}
-	func set_color(command_buffer: Command_buffer,
-				   isWhite: inout Bool,
-				   gpu: GPU){
+	func set_color(gpu: GPU,
+				   command_buffer: Command_buffer,
+				   isWhite: inout Bool){
 		let compute_command_encoder: Compute_command_encoder
 		= Compute_command_encoder(command_buffer: command_buffer)
 		compute_command_encoder.set_input(x: &isWhite)

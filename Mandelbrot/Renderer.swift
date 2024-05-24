@@ -118,8 +118,8 @@ extension Renderer: MTKViewDelegate {
 		case 0:
 			gpu.set_compute_pipeline_state(function_name: vertices_function)
 			window.set_vertices(
+				gpu: gpu, 
 				command_buffer: command_buffer,
-				gpu: gpu,
 				center: (center[0], center[1]),
 				radius: radius,
 				width: width,
@@ -127,16 +127,10 @@ extension Renderer: MTKViewDelegate {
 			)
 		case 1:
 			gpu.set_compute_pipeline_state(function_name: triangles_function)
-			window.set_triangles(
-				command_buffer: command_buffer,
-				gpu: gpu
-			)
+			window.set_triangles(gpu: gpu, command_buffer: command_buffer)
 		case 2:
 			gpu.set_compute_pipeline_state(function_name: zero_function)
-			window.set_z_n(
-				command_buffer: command_buffer,
-				gpu: gpu
-			)
+			window.set_z_n(gpu: gpu, command_buffer: command_buffer)
 			return nil
 		default:
 			return .start(frame+1)
@@ -147,10 +141,9 @@ extension Renderer: MTKViewDelegate {
 		switch frame {
 		case 0:
 			gpu.set_compute_pipeline_state(function_name: zero_color_function)
-			window.set_color(
-				command_buffer: command_buffer,
-				isWhite: &isWhite,
-				gpu: gpu
+			window.set_color(gpu: gpu,
+							 command_buffer: command_buffer,
+							 isWhite: &isWhite
 			)
 			isLoading = true
 		default:
@@ -162,20 +155,16 @@ extension Renderer: MTKViewDelegate {
 		switch frame {
 		case 0:
 			gpu.set_compute_pipeline_state(function_name: vertices_function)
-			window.set_vertices(
-				command_buffer: command_buffer,
-				gpu: gpu,
-				center: (center[0], center[1]),
-				radius: radius,
-				width: width,
-				height: height
+			window.set_vertices(gpu: gpu,
+								command_buffer: command_buffer,
+								center: (center[0], center[1]),
+								radius: radius,
+								width: width,
+								height: height
 			)
 		case 1:
 			gpu.set_compute_pipeline_state(function_name: zero_function)
-			window.set_z_n(
-				command_buffer: command_buffer,
-				gpu: gpu
-			)
+			window.set_z_n(gpu: gpu, command_buffer: command_buffer)
 			return nil
 		default:
 			return .refresh(frame+1)
