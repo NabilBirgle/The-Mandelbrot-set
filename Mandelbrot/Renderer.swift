@@ -71,9 +71,8 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-		let n: Int = action_buffer.count
-		let action: Action? = action_buffer[0..<n].max(by: <=)
-		action_buffer[0..<n].removeAll(where: {($0 == action)})
+		let action: Action? = action_buffer.max(by: <=)
+		action_buffer.removeAll(where: {($0 == action)})
 		var new_action: Action?
 		switch action {
 		case .start(let frame):
@@ -114,72 +113,47 @@ extension Renderer: MTKViewDelegate {
 		command_buffer.commit()
 	}
 	func start(frame: Int, command_buffer: Command_buffer) -> Action? {
-		switch frame {
-		case 0:
-			gpu.set_compute_pipeline_state(function_name: vertices_function)
-			window.set_vertices(
-				gpu: gpu, 
-				command_buffer: command_buffer,
-				center: (center[0], center[1]),
-				radius: radius,
-				width: width,
-				height: height
-			)
-		case 1:
-			gpu.set_compute_pipeline_state(function_name: triangles_function)
-			window.set_triangles(gpu: gpu, command_buffer: command_buffer)
-		case 2:
-			gpu.set_compute_pipeline_state(function_name: zero_function)
-			window.set_z_n(gpu: gpu, command_buffer: command_buffer)
-			return nil
-		default:
-			return .start(frame+1)
-		}
-		return .start(frame+1)
+		gpu.set_compute_pipeline_state(function_name: vertices_function)
+		window.set_vertices(
+			gpu: gpu,
+			command_buffer: command_buffer,
+			center: (center[0], center[1]),
+			radius: radius,
+			width: width,
+			height: height
+		)
+		gpu.set_compute_pipeline_state(function_name: triangles_function)
+		window.set_triangles(gpu: gpu, command_buffer: command_buffer)
+		gpu.set_compute_pipeline_state(function_name: zero_function)
+		window.set_z_n(gpu: gpu, command_buffer: command_buffer)
+		return nil
 	}
 	func loading(frame: Int, command_buffer: Command_buffer) -> Action? {
-		switch frame {
-		case 0:
-			gpu.set_compute_pipeline_state(function_name: zero_color_function)
-			window.set_color(gpu: gpu,
-							 command_buffer: command_buffer,
-							 isWhite: &isWhite
-			)
-			isLoading = true
-		default:
-			return nil
-		}
+		gpu.set_compute_pipeline_state(function_name: zero_color_function)
+		window.set_color(gpu: gpu,
+						 command_buffer: command_buffer,
+						 isWhite: &isWhite
+		)
+		isLoading = true
 		return nil
 	}
 	func refresh(frame: Int, command_buffer: Command_buffer) -> Action? {
-		switch frame {
-		case 0:
-			gpu.set_compute_pipeline_state(function_name: vertices_function)
-			window.set_vertices(gpu: gpu,
-								command_buffer: command_buffer,
-								center: (center[0], center[1]),
-								radius: radius,
-								width: width,
-								height: height
-			)
-		case 1:
-			gpu.set_compute_pipeline_state(function_name: zero_function)
-			window.set_z_n(gpu: gpu, command_buffer: command_buffer)
-			return nil
-		default:
-			return .refresh(frame+1)
-		}
-		return .refresh(frame+1)
+		gpu.set_compute_pipeline_state(function_name: vertices_function)
+		window.set_vertices(gpu: gpu,
+							command_buffer: command_buffer,
+							center: (center[0], center[1]),
+							radius: radius,
+							width: width,
+							height: height
+		)
+		gpu.set_compute_pipeline_state(function_name: zero_function)
+		window.set_z_n(gpu: gpu, command_buffer: command_buffer)
+		return nil
 	}
 	func update_color(frame: Int, command_buffer: Command_buffer) -> Action? {
-		switch frame {
-		case 0:
-			gpu.set_compute_pipeline_state(function_name: update_function)
-			update_window(command_buffer: command_buffer)
-			isLoading = false
-		default:
-			return nil
-		}
+		gpu.set_compute_pipeline_state(function_name: update_function)
+		update_window(command_buffer: command_buffer)
+		isLoading = false
 		return nil
 	}
 	func update_window(command_buffer: Command_buffer){
