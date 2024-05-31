@@ -101,7 +101,7 @@ struct MetalView: View {
 		renderer?.add_setting(
 			actions: [
 				.set_background(isWhite),
-				.refresh(1),
+				.refresh(0),
 				.update_color(0)
 			]
 		)
