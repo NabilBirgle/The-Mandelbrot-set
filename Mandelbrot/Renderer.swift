@@ -10,13 +10,9 @@ class Renderer: NSObject {
 	private let update_function =  "update_function"
 	private let vertex_main = "vertex_main"
 	private let fragment_main = "fragment_main"
-	/// n_vertex_buffer doit être modifier en fonction du nombre de paramètre de la fonction vertex dans Shaders.metal. Si sa valeur est incorrect, le Preview bug et il est possible que Xcode plante et jusqu'à forcer la session à se verrouiller. (Xcode Version 15.4, 2024)
+	/// n_vertex_buffer doit être modifier en fonction du nombre de paramètre de la fonction vertex dans Shaders.metal. Si sa valeur est incorrect, le Preview bug et il est possible que Xcode plante  jusqu'à forcer la session à se verrouiller. (Xcode Version 15.4, 2024)
 	private let n_vertex_buffer: Int = 6
 	private var window: Window
-	private var center: simd_float2
-	private var radius: Float
-	private var width: Float
-	private var height: Float
 	init(gpu: GPU,
 		 command_queue: Command_queue,
 		 metalView: MTKView,
@@ -32,7 +28,6 @@ class Renderer: NSObject {
 		gpu.compile(name: update_function)
 		gpu.compile(name: vertex_main)
 		gpu.compile(name: fragment_main)
-		gpu.set_compute_pipeline_state(function_name: update_function)
 		gpu.set_render_pipeline_state(
 			metalView: metalView,
 			vertex_function: vertex_main,
@@ -43,15 +38,10 @@ class Renderer: NSObject {
 		self.command_queue = command_queue
 		self.window = window
 		let (x, y) = center
-		self.center = [x, y]
-		self.radius = radius
-		self.width = width
-		self.height = height
+		self.CPU_parameters = windows_parameters(center: [x, y], radius: radius, width: width, height: height)
+		self.GPU_parameters = windows_parameters(center: [x, y], radius: radius, width: width, height: height)
 		super.init()
 	}
-	private var delta_v: simd_float2 = [0, 0]
-	private var isWhite: Bool = true
-	private var magnify: Float = 1
 	private var action_buffer: [Action] = [.loading(0), .start(0), .update_color(0)]
 	func add_setting(actions: [Action]){
 		action_buffer.append(contentsOf: actions)
@@ -60,6 +50,23 @@ class Renderer: NSObject {
 		action_buffer.append(action)
 	}
 	private var isLoading: Bool = false
+	var CPU_parameters: windows_parameters
+	var GPU_parameters: windows_parameters
+	class windows_parameters {
+		var center: simd_float2
+		var radius: Float
+		var width: Float
+		var height: Float
+		init(center: simd_float2, radius: Float, width: Float, height: Float) {
+			self.center = center
+			self.radius = radius
+			self.width = width
+			self.height = height
+		}
+		var delta_v: simd_float2 = [0, 0]
+		var isWhite: Bool = true
+		var magnify: Float = 1
+	}
 }
 
 extension Renderer: MTKViewDelegate {
@@ -71,7 +78,7 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_queue: Command_queue){
 		let command_buffer = Command_buffer(command_queue: command_queue)
 		command_buffer.present(view: view)
-		let action: Action? = action_buffer.max(by: <=)
+		let action: Action? = action_buffer.max(by: <)
 		action_buffer.removeAll(where: {($0 == action)})
 		var new_action: Action?
 		switch action {
@@ -81,19 +88,18 @@ extension Renderer: MTKViewDelegate {
 			new_action = loading(frame: frame, command_buffer: command_buffer)
 		case .refresh(let frame):
 			new_action = refresh(frame: frame, command_buffer: command_buffer)
-		case .set_window(let width, let height):
-			self.width = width
-			self.height = height
-		case .set_radius(let radius):
-			self.radius = radius
-		case .set_center(let x, let y):
-			self.center = [x, y]
-		case .set_delta_v(let delta_x, let delta_y):
-			self.delta_v = [delta_x, delta_y]
-		case .set_magnify(let magnifyBy):
-			self.magnify = magnifyBy
-		case .set_background(let isWhite):
-			self.isWhite = isWhite
+		case .set_window(let frame):
+			GPU_parameters = CPU_parameters
+		case .set_radius(let frame):
+			GPU_parameters = CPU_parameters
+		case .set_center(let frame):
+			GPU_parameters = CPU_parameters
+		case .set_delta_v(let frame):
+			GPU_parameters = CPU_parameters
+		case .set_magnify(let frame):
+			GPU_parameters = CPU_parameters
+		case .set_background(let frame):
+			GPU_parameters = CPU_parameters
 		case .update_color(let frame):
 			new_action = update_color(frame: frame, command_buffer: command_buffer)
 		default:
@@ -117,10 +123,10 @@ extension Renderer: MTKViewDelegate {
 		window.set_vertices(
 			gpu: gpu,
 			command_buffer: command_buffer,
-			center: (center[0], center[1]),
-			radius: radius,
-			width: width,
-			height: height
+			center: (GPU_parameters.center[0], GPU_parameters.center[1]),
+			radius: GPU_parameters.radius,
+			width: GPU_parameters.width,
+			height: GPU_parameters.height
 		)
 		gpu.set_compute_pipeline_state(function_name: triangles_function)
 		window.set_triangles(gpu: gpu, command_buffer: command_buffer)
@@ -132,7 +138,7 @@ extension Renderer: MTKViewDelegate {
 		gpu.set_compute_pipeline_state(function_name: zero_color_function)
 		window.set_color(gpu: gpu,
 						 command_buffer: command_buffer,
-						 isWhite: &isWhite
+						 isWhite: &GPU_parameters.isWhite
 		)
 		isLoading = true
 		return nil
@@ -141,10 +147,10 @@ extension Renderer: MTKViewDelegate {
 		gpu.set_compute_pipeline_state(function_name: vertices_function)
 		window.set_vertices(gpu: gpu,
 							command_buffer: command_buffer,
-							center: (center[0], center[1]),
-							radius: radius,
-							width: width,
-							height: height
+							center: (GPU_parameters.center[0], GPU_parameters.center[1]),
+							radius: GPU_parameters.radius,
+							width: GPU_parameters.width,
+							height: GPU_parameters.height
 		)
 		gpu.set_compute_pipeline_state(function_name: zero_function)
 		window.set_z_n(gpu: gpu, command_buffer: command_buffer)
@@ -160,7 +166,7 @@ extension Renderer: MTKViewDelegate {
 		let compute_command_encoder: Compute_command_encoder
 		= Compute_command_encoder(command_buffer: command_buffer)
 		compute_command_encoder.set_input(arr: window.get_vertices())
-		compute_command_encoder.set_input(x: &isWhite)
+		compute_command_encoder.set_input(x: &GPU_parameters.isWhite)
 		compute_command_encoder.set_input(arr: window.get_z_n())
 		compute_command_encoder.set_input(arr: window.get_color())
 		compute_command_encoder.set_index_input(
@@ -172,12 +178,12 @@ extension Renderer: MTKViewDelegate {
 	func draw(view: MTKView, command_buffer: Command_buffer){
 		let render_command_encoder: Render_command_encoder
 		= Render_command_encoder(view: view, command_buffer: command_buffer)
-		render_command_encoder.set_input(x: &center)
-		render_command_encoder.set_input(x: &radius)
-		render_command_encoder.set_input(x: &delta_v)
-		render_command_encoder.set_input(x: &magnify)
-		render_command_encoder.set_input(x: &width)
-		render_command_encoder.set_input(x: &height)
+		render_command_encoder.set_input(x: &GPU_parameters.center)
+		render_command_encoder.set_input(x: &GPU_parameters.radius)
+		render_command_encoder.set_input(x: &GPU_parameters.delta_v)
+		render_command_encoder.set_input(x: &GPU_parameters.magnify)
+		render_command_encoder.set_input(x: &GPU_parameters.width)
+		render_command_encoder.set_input(x: &GPU_parameters.height)
 		render_command_encoder.set_shader_input(
 			window: window,
 			gpu: gpu
