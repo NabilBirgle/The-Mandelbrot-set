@@ -88,17 +88,7 @@ extension Renderer: MTKViewDelegate {
 			new_action = loading(frame: frame, command_buffer: command_buffer)
 		case .refresh(let frame):
 			new_action = refresh(frame: frame, command_buffer: command_buffer)
-		case .set_window(let frame):
-			GPU_parameters = CPU_parameters
-		case .set_radius(let frame):
-			GPU_parameters = CPU_parameters
-		case .set_center(let frame):
-			GPU_parameters = CPU_parameters
-		case .set_delta_v(let frame):
-			GPU_parameters = CPU_parameters
-		case .set_magnify(let frame):
-			GPU_parameters = CPU_parameters
-		case .set_background(let frame):
+		case .new_parameter(_):
 			GPU_parameters = CPU_parameters
 		case .update_color(let frame):
 			new_action = update_color(frame: frame, command_buffer: command_buffer)

@@ -101,7 +101,7 @@ struct MetalView: View {
 		renderer?.CPU_parameters.isWhite = isWhite
 		renderer?.add_setting(
 			actions: [
-				.set_background(0),
+				.new_parameter(0),
 				.refresh(0),
 				.update_color(0)
 			]
@@ -186,8 +186,7 @@ struct MetalView: View {
 		renderer?.add_setting(
 			actions: [
 				.loading(0),
-				.set_center(0),
-				.set_radius(0),
+				.new_parameter(0),
 				.refresh(0),
 				.update_color(0)
 			]
@@ -201,7 +200,7 @@ struct MetalView: View {
 		renderer?.add_setting(
 			actions: [
 				.loading(0),
-				.set_window(0),
+				.new_parameter(0),
 				.refresh(0),
 				.update_color(0)
 			]
@@ -243,7 +242,7 @@ struct MetalView: View {
 		let h: Float = r * Float(window_height) / min(Float(window_width), Float(window_height))
 		renderer?.CPU_parameters.delta_v = [Float(delta_x)*w/50,
 											Float(delta_y)*h/50]
-		renderer?.add_setting(action: .set_delta_v(0))
+		renderer?.add_setting(action: .new_parameter(0))
 	}
 	func shift_mandelbrot(d: DragGesture.Value){
 		let (delta_x, delta_y): (Int, Int) = (
@@ -262,8 +261,7 @@ struct MetalView: View {
 		renderer?.add_setting(
 			actions: [
 				.loading(0),
-				.set_center(0),
-				.set_delta_v(0),
+				.new_parameter(0),
 				.refresh(0),
 				.update_color(0)
 			]
@@ -274,7 +272,7 @@ struct MetalView: View {
 			.onChanged({value in
 				let magnifyBy: Float = Float(value.magnification)
 				renderer?.CPU_parameters.magnify = magnifyBy
-				renderer?.add_setting(action: .set_magnify(0))
+				renderer?.add_setting(action: .new_parameter(0))
 			})
 			.onEnded({value in
 				let magnifyBy: Float = Float(value.magnification)
@@ -284,7 +282,7 @@ struct MetalView: View {
 					unzoom_mandelbrot()
 				} else {
 					renderer?.CPU_parameters.magnify = 1
-					renderer?.add_setting(action: .set_magnify(0))
+					renderer?.add_setting(action: .new_parameter(0))
 				}
 			})
 	}
@@ -300,8 +298,7 @@ struct MetalView: View {
 		renderer?.add_setting(
 			actions: [
 				.loading(0),
-				.set_magnify(0),
-				.set_radius(0),
+				.new_parameter(0),
 				.refresh(0),
 				.update_color(0)
 			]
@@ -319,8 +316,7 @@ struct MetalView: View {
 		renderer?.add_setting(
 			actions: [
 				.loading(0),
-				.set_magnify(0),
-				.set_radius(0),
+				.new_parameter(0),
 				.refresh(0),
 				.update_color(0)
 			]
