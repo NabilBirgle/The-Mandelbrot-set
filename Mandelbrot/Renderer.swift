@@ -131,7 +131,12 @@ extension Renderer: MTKViewDelegate {
 						 isWhite: &GPU_parameters.isWhite
 		)
 		isLoading = true
-		return nil
+		switch frame {
+		case 0:
+			return nil
+		default:
+			return .loading(frame-1)
+		}
 	}
 	func refresh(frame: Int, command_buffer: Command_buffer) -> Action? {
 		gpu.set_compute_pipeline_state(function_name: vertices_function)

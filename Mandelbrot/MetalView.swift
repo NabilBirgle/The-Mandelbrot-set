@@ -199,7 +199,7 @@ struct MetalView: View {
 		renderer?.CPU_parameters.height = Float(window_height)
 		renderer?.add_setting(
 			actions: [
-				.loading(0),
+				.loading(30),
 				.new_parameter(0),
 				.refresh(0),
 				.update_color(0)
